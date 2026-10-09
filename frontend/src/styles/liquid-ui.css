@@ -1,0 +1,110 @@
+/* Apple Liquid Glass Design System */
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -5px rgba(0, 171, 228, 0.08), 0 4px 12px 0 rgba(15, 23, 42, 0.03);
+}
+
+.liquid-glass-subtle {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 20px;
+}
+
+.liquid-card {
+  padding: 1.25rem;
+  border-radius: 24px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.liquid-card:hover {
+  border-color: rgba(0, 171, 228, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -8px rgba(0, 171, 228, 0.15), 0 4px 16px 0 rgba(15, 23, 42, 0.05);
+}
+
+.liquid-nav-active {
+  background: rgba(0, 171, 228, 0.14) !important;
+  border: 1px solid rgba(0, 171, 228, 0.35) !important;
+  color: #006fa6 !important;
+  box-shadow: 0 4px 16px 0 rgba(0, 171, 228, 0.18) !important;
+}
+
+.liquid-btn-primary {
+  background: linear-gradient(135deg, #00abe4 0%, #3b82f6 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 16px 0 rgba(0, 171, 228, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.liquid-btn-primary:hover {
+  box-shadow: 0 6px 20px 0 rgba(0, 171, 228, 0.45);
+  transform: translateY(-1px);
+}
+
+.liquid-btn-secondary {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  box-shadow: 0 2px 8px 0 rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.liquid-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 171, 228, 0.3);
+  color: #00abe4;
+}
+
+.liquid-pill {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px 0 rgba(0, 171, 228, 0.06);
+}
+
+/* Background Animated Blobs */
+.liquid-blob-1 {
+  position: fixed;
+  top: -100px;
+  right: -50px;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(0, 171, 228, 0.18) 0%, rgba(220, 238, 255, 0.05) 70%, transparent 100%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-blob-2 {
+  position: fixed;
+  bottom: -150px;
+  left: -100px;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.14) 0%, rgba(233, 241, 250, 0.05) 70%, transparent 100%);
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-blob-3 {
+  position: fixed;
+  top: 40%;
+  left: 30%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  filter: blur(65px);
+  pointer-events: none;
+  z-index: 0;
+}

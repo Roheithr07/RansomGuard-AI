@@ -1,0 +1,3289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RansomGuard AI — Storage Protection & Ransomware Detection</title>
+  <meta name="description" content="AI-Powered Ransomware Detection and Storage Protection System with verified snapshot recovery.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    :root {
+      --radius: 1rem;
+      --background: oklch(95.4% .015 248);
+      --background-2: oklch(97.7% .008 248);
+      --foreground: oklch(25% .06 258);
+      --card: oklch(100% 0 0 / .55);
+      --card-foreground: var(--foreground);
+      --popover: oklch(100% 0 0 / .85);
+      --popover-foreground: var(--foreground);
+      --primary: oklch(60% .17 252);
+      --primary-foreground: oklch(100% 0 0);
+      --secondary: oklch(97.7% .008 248);
+      --secondary-foreground: var(--foreground);
+      --muted: oklch(95% .015 248);
+      --muted-foreground: oklch(53% .04 257);
+      --accent: oklch(93% .035 245);
+      --accent-foreground: oklch(52% .18 258);
+      --destructive: oklch(66% .18 15);
+      --destructive-foreground: oklch(100% 0 0);
+      --border: oklch(100% 0 0 / .7);
+      --input: oklch(90% .02 248);
+      --ring: oklch(60% .17 252);
+      --sky: oklch(68% .14 230);
+      --bright: oklch(60% .17 252);
+      --deep: oklch(52% .18 258);
+      --success: oklch(69% .15 158);
+      --warning: oklch(81% .14 80);
+      --danger: oklch(66% .18 15);
+      --glass: oklch(100% 0 0 / .55);
+      --gradient-primary: linear-gradient(135deg, oklch(68% .14 230), oklch(60% .17 252) 50%, oklch(52% .18 258));
+      --shadow-glass: 0 10px 40px -12px oklch(55% .12 250 / .25), inset 0 1px 0 oklch(100% 0 0 / .9);
+      --shadow-button: 0 10px 24px -8px oklch(55% .18 255 / .55), inset 0 1px 0 oklch(100% 0 0 / .35);
+      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    *, ::before, ::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: 0 solid var(--border);
+    }
+
+    html, body {
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .liquid-bg {
+      background:
+        radial-gradient(40% 50% at 10% 85%, oklch(85% .06 240 / .7), transparent 70%),
+        radial-gradient(35% 45% at 90% 15%, oklch(90% .04 230 / .8), transparent 70%),
+        radial-gradient(50% 40% at 70% 90%, oklch(92% .03 245 / .9), transparent 70%),
+        linear-gradient(180deg, var(--background-2), var(--background));
+    }
+
+    .glass {
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      box-shadow: var(--shadow-glass);
+      background: linear-gradient(160deg, oklch(1 0 0 / 0.72), oklch(1 0 0 / 0.42));
+      border: 1px solid oklch(1 0 0 / 0.75);
+    }
+
+    .glass-strong {
+      backdrop-filter: blur(28px) saturate(170%);
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      background: oklch(1 0 0 / 0.86);
+      border: 1px solid oklch(1 0 0 / 0.9);
+      box-shadow: oklch(0.45 0.12 250 / 0.3) 0px 20px 50px -15px;
+    }
+
+    .glass-inset {
+      background: linear-gradient(160deg, oklch(0.97 0.015 245 / 0.9), oklch(0.93 0.03 245 / 0.6));
+      border: 1px solid oklch(1 0 0 / 0.9);
+      box-shadow: oklch(1 0 0) 0px 1px inset, oklch(0.55 0.12 250 / 0.3) 0px 6px 16px -8px;
+    }
+
+    .btn-liquid {
+      background: var(--gradient-primary);
+      color: var(--primary-foreground);
+      box-shadow: var(--shadow-button);
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-liquid:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .btn-liquid:active {
+      transform: translateY(0px) scale(0.99);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--foreground);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px);
+    }
+
+    @keyframes blob {
+      0%, 100% { transform: translate(0px) scale(1); }
+      50% { transform: translate(30px, -20px) scale(1.08); }
+    }
+
+    @keyframes pulse-ring {
+      0% { opacity: 0.7; transform: scale(0.9); }
+      100% { opacity: 0; transform: scale(1.25); }
+    }
+
+    .animate-blob { animation: 18s ease-in-out 0s infinite normal none running blob; }
+    .animate-pulse-ring { animation: 2.6s ease-out 0s infinite normal none running pulse-ring; }
+
+    /* Custom layout helper classes */
+    .app-container {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 1.25rem;
+      width: 270px;
+      height: calc(100vh - 40px);
+      flex-shrink: 0;
+      border-radius: 28px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      border-radius: 28px;
+      padding: 1.5rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--foreground);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: var(--glass);
+      transform: translateX(2px);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-primary);
+      color: var(--primary-foreground);
+      box-shadow: var(--shadow-button);
+    }
+    .nav-item.active svg {
+      color: var(--primary-foreground) !important;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-critical { background: rgba(220, 38, 38, 0.15); color: #dc2626; }
+    .badge-high { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .badge-medium { background: rgba(245, 158, 11, 0.2); color: #d97706; }
+    .badge-low { background: rgba(16, 185, 129, 0.15); color: #059669; }
+    .badge-info { background: rgba(18, 104, 213, 0.15); color: #1268d5; }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    table.data-table th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--muted-foreground);
+      font-weight: 600;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    table.data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    table.data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      display: none;
+      place-items: center;
+      z-index: 1000;
+    }
+    .modal-box {
+      width: 90%;
+      max-width: 520px;
+      border-radius: 24px;
+      padding: 24px;
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Activity chart SVG */
+    .bar-rect {
+      transition: height 0.4s ease, y 0.4s ease;
+    }
+
+    /* Toast */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast-item {
+      padding: 14px 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      font-size: 14px;
+      font-weight: 500;
+      animation: toastSlide 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+    }
+    @keyframes toastSlide {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="liquid-bg relative min-h-screen overflow-x-hidden">
+
+  <!-- Ambient Animated Glass Blobs -->
+  <div class="pointer-events-none absolute -left-32 bottom-0 h-[420px] w-[420px] rounded-full blur-3xl animate-blob" style="background: oklch(93% .035 245 / .7); z-index: 1;"></div>
+  <div class="pointer-events-none absolute right-0 top-10 h-[360px] w-[360px] rounded-full blur-3xl animate-blob" style="background: oklch(100% 0 0 / .55); z-index: 1;"></div>
+
+  <div class="app-container">
+    <!-- App Sidebar -->
+    <aside class="glass sidebar" id="appSidebar">
+      <!-- Brand Header -->
+      <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.5rem 1.5rem 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+        <div>
+          <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2;">RansomGuard <span style="color: var(--bright);">AI</span></div>
+          <div style="font-size: 0.75rem; color: var(--muted-foreground);">Storage Protection System</div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav style="display: flex; flex-direction: column; gap: 0.375rem; flex: 1;">
+        <a class="nav-item active" data-tab="dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>
+          Dashboard
+        </a>
+        <a class="nav-item" data-tab="live-monitor">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+          Live Monitor
+        </a>
+        <a class="nav-item" data-tab="threats">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+          Threats
+        </a>
+        <a class="nav-item" data-tab="storage">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
+          Storage
+        </a>
+        <a class="nav-item" data-tab="backups">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
+          Backup & Snapshots
+        </a>
+        <a class="nav-item" data-tab="recovery">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+          Recovery
+        </a>
+        <a class="nav-item" data-tab="ai-analysis">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path><path d="M9 13a4.5 4.5 0 0 0 3-4"></path><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"></path><circle cx="16" cy="13" r=".5"></circle><circle cx="18" cy="3" r=".5"></circle><circle cx="20" cy="21" r=".5"></circle><circle cx="20" cy="8" r=".5"></circle></svg>
+          AI Analysis
+        </a>
+        <a class="nav-item" data-tab="reports">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+          Reports
+        </a>
+        <a class="nav-item" data-tab="settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          Settings
+        </a>
+      </nav>
+
+      <!-- Sidebar Status Card -->
+      <div class="glass-inset" style="margin-top: 1rem; border-radius: 1rem; padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+        <div style="flex: 1;">
+          <div style="font-size: 14px; font-weight: 600;" id="sidebarProtectionText">System Protected</div>
+          <div style="font-size: 12px; color: var(--muted-foreground);" id="sidebarStatusSubtext">Zero active threats</div>
+        </div>
+        <span id="sidebarStatusDot" style="height: 10px; width: 10px; border-radius: 9999px; background: var(--success);"></span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="glass main-content">
+      <!-- Top Header -->
+      <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="flex: 1; min-width: 240px;">
+          <h1 style="font-size: 26px; font-weight: 600; letter-spacing: -0.025em;" id="pageTitle">Welcome back, Admin 👋</h1>
+          <p style="font-size: 14px; color: var(--muted-foreground);" id="pageSubtitle">Real-time ransomware threat telemetry & intelligent storage protection.</p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Live Telemetry Status Pill -->
+          <div class="glass" id="wsStatusPill" style="padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <span id="wsStatusDot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block;"></span>
+            <span id="wsStatusLabel">Live Connected</span>
+          </div>
+
+          <!-- Demo Session Pill -->
+          <div class="glass" id="demoSessionPill" style="padding: 6px 14px; border-radius: 9999px; font-size: 11px; font-family: monospace; display: flex; align-items: center; gap: 6px;" title="Current Presentation Session">
+            <span style="color: var(--muted-foreground);">Session:</span>
+            <strong id="headerSessionId" style="color: var(--foreground);">--</strong>
+          </div>
+
+          <!-- Reset Demo Button -->
+          <button id="quickResetBtn" class="btn-secondary" style="padding: 9px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600; gap: 8px; display: inline-flex; align-items: center;" onclick="openDemoResetModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+            Reset Demo
+          </button>
+
+          <!-- Safe Simulation Button -->
+          <button id="quickSimBtn" class="btn-liquid" style="padding: 9px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Simulate Attack
+          </button>
+
+          <!-- Notifications bell -->
+          <button class="glass" style="width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; position: relative;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+            <span id="headerThreatBadge" style="position: absolute; top: 0px; right: 0px; width: 18px; height: 18px; border-radius: 50%; background: var(--bright); color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center;">0</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ================= TAB 1: DASHBOARD ================= -->
+      <section id="tab-dashboard" class="tab-pane">
+        <!-- 4 Stat Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div class="glass-inset" style="width: 64px; height: 64px; border-radius: 1rem; display: grid; place-items: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--muted-foreground);">Files Monitored</div>
+              <div style="font-size: 28px; font-weight: 600; line-height: 1.2;" id="statFilesMonitored">0</div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--bright);" id="statFilesMonitoredSub">Protected folder</div>
+            </div>
+          </div>
+
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div class="glass-inset" style="width: 64px; height: 64px; border-radius: 1rem; display: grid; place-items: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--muted-foreground);">Threats Detected</div>
+              <div style="font-size: 28px; font-weight: 600; line-height: 1.2;" id="statThreatsDetected">0</div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--bright);" id="statThreatsDetectedSub">0 active incidents</div>
+            </div>
+          </div>
+
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div class="glass-inset" style="width: 64px; height: 64px; border-radius: 1rem; display: grid; place-items: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--muted-foreground);">Storage Health</div>
+              <div style="font-size: 28px; font-weight: 600; line-height: 1.2;" id="statStorageHealth">100%</div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--bright);" id="statStorageHealthSub">Healthy</div>
+            </div>
+          </div>
+
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div class="glass-inset" style="width: 64px; height: 64px; border-radius: 1rem; display: grid; place-items: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; color: var(--muted-foreground);">Backup Points</div>
+              <div style="font-size: 28px; font-weight: 600; line-height: 1.2;" id="statBackupPoints">0</div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--bright);" id="statBackupPointsSub">SHA-256 Verified</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Chart & Protection Radar -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+          <!-- Live File Activity Chart -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+                <h2 style="font-size: 17px; font-weight: 600;">Live File Activity Telemetry</h2>
+              </div>
+              <div class="glass" style="border-radius: 9999px; padding: 4px 12px; font-size: 12px; font-weight: 600;">Real-time Stream</div>
+            </div>
+
+            <!-- Legend -->
+            <div style="display: flex; gap: 1.25rem; margin-top: 0.75rem; font-size: 13px;">
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #1268D5;"></span>Created</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #7DB9F0;"></span>Modified</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #D3DDEA;"></span>Deleted</span>
+              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #168CF0;"></span>Renamed</span>
+            </div>
+
+            <!-- Dynamic SVG Activity Chart -->
+            <div style="height: 220px; width: 100%; margin-top: 1rem;">
+              <svg id="liveActivitySvg" viewBox="0 0 600 200" style="width: 100%; height: 100%;">
+                <defs>
+                  <linearGradient id="g-created" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1268D5"/><stop offset="100%" stop-color="#1268D5" stop-opacity="0.45"/></linearGradient>
+                  <linearGradient id="g-modified" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7DB9F0"/><stop offset="100%" stop-color="#7DB9F0" stop-opacity="0.45"/></linearGradient>
+                  <linearGradient id="g-deleted" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D3DDEA"/><stop offset="100%" stop-color="#D3DDEA" stop-opacity="0.45"/></linearGradient>
+                  <linearGradient id="g-renamed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#168CF0"/><stop offset="100%" stop-color="#168CF0" stop-opacity="0.45"/></linearGradient>
+                </defs>
+                <line x1="30" y1="180" x2="580" y2="180" stroke="var(--input)" stroke-width="1" opacity="0.6"/>
+                <line x1="30" y1="120" x2="580" y2="120" stroke="var(--input)" stroke-width="1" opacity="0.4"/>
+                <line x1="30" y1="60" x2="580" y2="60" stroke="var(--input)" stroke-width="1" opacity="0.4"/>
+                <!-- Bars will be dynamically populated/updated -->
+                <g id="chartBarsGroup"></g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Protection Status Radar -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+              <h2 style="font-size: 17px; font-weight: 600;">Protection Status</h2>
+              <span id="radarStatusPill" class="badge badge-low">System Secure</span>
+            </div>
+
+            <!-- Radar Graphic -->
+            <div style="position: relative; width: 150px; height: 150px; display: grid; place-items: center; margin: 1rem 0;">
+              <span class="animate-pulse-ring" style="position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--sky);"></span>
+              <span style="position: absolute; inset: 12px; border-radius: 50%; border: 1px solid rgba(18, 104, 213, 0.3);"></span>
+              <span style="position: absolute; inset: 26px; border-radius: 50%; background: var(--accent); opacity: 0.7;"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 24 24" fill="var(--bright)" stroke="var(--primary-foreground)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="position: relative; color: var(--bright); filter: drop-shadow(0 6px 12px rgba(18,104,213,0.3));">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+
+            <div style="text-align: center;">
+              <div style="font-size: 19px; font-weight: 600;" id="radarMainText">You are Protected!</div>
+              <div style="font-size: 13px; color: var(--muted-foreground);" id="radarSubText">No active ransomware signatures</div>
+            </div>
+
+            <button class="btn-liquid" style="width: 100%; border-radius: 9999px; padding: 12px; margin-top: 1rem; font-size: 14px; font-weight: 600;" onclick="switchTab('threats')">
+              View Threat Center →
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Bottom Columns: Recent Security Events, Backup Overview, Smart Recovery -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem;">
+          <!-- Recent Security Events -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <h2 style="font-size: 17px; font-weight: 600;">Recent Security Events</h2>
+              <span style="font-size: 12px; color: var(--muted-foreground);">Live SQLite log</span>
+            </div>
+            <ul id="dashboardRecentEventsList" style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+              <!-- Populated via API -->
+            </ul>
+            <a style="margin-top: auto; padding-top: 12px; font-size: 13px; font-weight: 600; color: var(--bright); text-align: center; cursor: pointer; text-decoration: none;" onclick="switchTab('live-monitor')">
+              View All Events in Live Monitor →
+            </a>
+          </div>
+
+          <!-- Backup Overview -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column;">
+            <h2 style="font-size: 17px; font-weight: 600; margin-bottom: 0.75rem;">Backup & Snapshots Overview</h2>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+              <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0;">
+                <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#E2E8F0" stroke-width="4"></circle>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#1268D5" stroke-width="4" stroke-dasharray="75 100"></circle>
+                </svg>
+                <div style="position: absolute; inset: 0; display: grid; place-items: center; text-align: center;">
+                  <div>
+                    <div style="font-size: 22px; font-weight: 700; line-height: 1;" id="donutTotalBackups">0</div>
+                    <div style="font-size: 10px; color: var(--muted-foreground);">Snapshots</div>
+                  </div>
+                </div>
+              </div>
+              <div style="flex: 1; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; justify-content: space-between;"><span>SHA-256 Valid</span><strong style="color: var(--success);" id="donutValidSnapshots">100%</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Recovery Ready</span><strong id="donutReadySnapshots">Active</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Latest Checkpoint</span><span id="donutLatestTime" style="font-size: 11px; color: var(--muted-foreground);">No data available</span></div>
+              </div>
+            </div>
+
+            <div class="glass-inset" style="border-radius: 12px; padding: 10px 14px; margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Latest Snapshot ID</div>
+                <div style="font-size: 13px; font-weight: 600;" id="latestSnapshotCardId">None</div>
+              </div>
+              <span class="badge badge-info" id="latestSnapshotCardStatus">Verified</span>
+            </div>
+
+            <button class="btn-secondary" style="margin-top: auto; padding: 10px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="switchTab('backups')">
+              Manage Backup Catalog →
+            </button>
+          </div>
+
+          <!-- Smart Recovery Card -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <h2 style="font-size: 17px; font-weight: 600; width: 100%; text-align: left;">Smart Recovery</h2>
+            <div class="glass-inset" style="width: 80px; height: 80px; border-radius: 50%; display: grid; place-items: center; margin: 1rem 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--bright);">
+                <path d="M12 13v8l-4-4"></path>
+                <path d="m12 21 4-4"></path>
+                <path d="M4.393 15.269A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.436 8.284"></path>
+              </svg>
+            </div>
+            <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 1rem;">
+              Instant rollback restores verified clean versions of files directly from immutable SHA-256 snapshots.
+            </p>
+            <div style="width: 100%; margin-top: auto;">
+              <button class="btn-liquid" style="width: 100%; border-radius: 9999px; padding: 12px; font-size: 14px; font-weight: 600;" onclick="switchTab('recovery')">
+                Open Recovery Console →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: LIVE MONITOR ================= -->
+      <section id="tab-live-monitor" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Real-Time Storage Monitor</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Live watchdog event stream capturing creations, modifications, renames, and deletions.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button id="toggleMonitorBtn" class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;">
+              Pause Monitor
+            </button>
+            <button class="btn-liquid" style="padding: 8px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="triggerSimulation()">
+              Trigger Simulation
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric counter badges -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 1.25rem;">
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Operations/sec</div>
+            <div style="font-size: 22px; font-weight: 700; color: var(--bright);" id="liveOpsSec">0.0</div>
+          </div>
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Files Created</div>
+            <div style="font-size: 22px; font-weight: 700; color: #1268D5;" id="liveCreatedCount">0</div>
+          </div>
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Files Modified</div>
+            <div style="font-size: 22px; font-weight: 700; color: #7DB9F0;" id="liveModifiedCount">0</div>
+          </div>
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Files Renamed</div>
+            <div style="font-size: 22px; font-weight: 700; color: #168CF0;" id="liveRenamedCount">0</div>
+          </div>
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Files Deleted</div>
+            <div style="font-size: 22px; font-weight: 700; color: #8898AA;" id="liveDeletedCount">0</div>
+          </div>
+          <div class="glass-inset" style="padding: 12px; border-radius: 16px; text-align: center;">
+            <div style="font-size: 11px; color: var(--muted-foreground);">Suspicious Ops</div>
+            <div style="font-size: 22px; font-weight: 700; color: var(--danger);" id="liveSuspiciousCount">0</div>
+          </div>
+        </div>
+
+        <!-- Live Events Stream Table -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 16px; font-weight: 600;">Live Event Ingestion Stream</h3>
+            <button class="btn-secondary" style="padding: 4px 12px; border-radius: 9999px; font-size: 12px;" onclick="loadEventsTable()">Refresh</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Event Type</th>
+                  <th>File Name</th>
+                  <th>Size</th>
+                  <th>Entropy</th>
+                  <th>Process</th>
+                  <th>Risk Score</th>
+                  <th>Severity</th>
+                  <th>Detection Reason</th>
+                </tr>
+              </thead>
+              <tbody id="liveEventsTableBody">
+                <tr><td colspan="9" style="text-align: center; color: var(--muted-foreground); padding: 20px;">Loading telemetry stream...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: THREATS ================= -->
+      <section id="tab-threats" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Threat Intelligence Center</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Active ransomware behavioral alarms, forensics, and containment statuses.</p>
+          </div>
+          <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="loadThreats()">
+            Refresh Incidents
+          </button>
+        </div>
+
+        <!-- Threat Telemetry Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Total Detected</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px;" id="threatStatTotal">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">SQLite Threat Logs</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Active Threats</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--danger);" id="threatStatActive">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Require Attention</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Critical Severity</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: #dc2626;" id="threatStatCritical">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Risk &ge; 80 / 100</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">High Severity</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--warning);" id="threatStatHigh">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Risk 60 - 79</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Resolved Threats</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--success);" id="threatStatResolved">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Contained / Clean</div>
+          </div>
+        </div>
+
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Threat ID</th>
+                  <th>Timestamp</th>
+                  <th>Severity</th>
+                  <th>Risk Score</th>
+                  <th>Detection Reasons & Entropy</th>
+                  <th>Affected File</th>
+                  <th>Process</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="threatsTableBody">
+                <tr><td colspan="9" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No threats recorded. Storage is clean.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: STORAGE ================= -->
+      <section id="tab-storage" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Storage Volume Monitoring</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Monitored storage paths, drive utilization, and protected file inventory.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="storageMonitoringBadge" class="badge badge-low">Watchdog Active</span>
+            <span id="storageHealthBadge" class="badge badge-info">Health: 100%</span>
+            <button id="refreshStorageBtn" class="btn-secondary" style="padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 600;" onclick="loadStorage(true)">Refresh</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+          <!-- Directory Config -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.75rem;">Protected Storage Path</h3>
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-family: monospace; font-size: 13px; word-break: break-all;" id="storageDirPath">
+              protected_storage/
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 10px;">
+              <input type="text" id="newStorageDirInput" placeholder="Configure path..." class="glass" style="flex: 1; padding: 8px 14px; border-radius: 9999px; font-size: 13px; outline: none;">
+              <button class="btn-liquid" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="updateStorageDirectory()">Apply</button>
+            </div>
+          </div>
+
+          <!-- Capacity Gauge -->
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.75rem;">Disk Space & Utilization</h3>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span>Protected Files (<b id="storageFilesCountText">0</b> files)</span>
+              <strong id="storageMonitoredBytesText">0 KB</strong>
+            </div>
+            <div style="height: 10px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 12px;">
+              <div id="storageProgressBar" style="width: 25%; height: 100%; background: var(--gradient-primary); border-radius: 9999px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted-foreground); flex-wrap: wrap; gap: 6px;">
+              <span>Disk Used: <b id="diskUsedGB">0 GB</b> (<b id="diskPercentText">0%</b>)</span>
+              <span>Free: <b id="diskFreeGB">0 GB</b></span>
+              <span>Total: <b id="diskCapacityGB">0 GB</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Files list preview -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 1rem;">Monitored Files in Protected Storage</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>Relative Path</th>
+                  <th>Extension</th>
+                  <th>Size</th>
+                  <th>Last Modified</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="storageFilesTableBody">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted-foreground); padding: 20px;">Scanning files...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: BACKUP & SNAPSHOTS ================= -->
+      <section id="tab-backups" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Backup & Immutable Snapshots</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Cryptographically signed snapshot checkpoints with SHA-256 integrity validation.</p>
+          </div>
+          <button class="btn-liquid" style="padding: 9px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="createSnapshotPrompt()">
+            + Create New Snapshot
+          </button>
+        </div>
+
+        <!-- Backup Telemetry Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Total Snapshots</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px;" id="backupStatTotal">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">SQLite Immutable Catalog</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">SHA-256 Verified</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--success);" id="backupStatValid">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Cryptographic Integrity</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Backup Archive Size</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px;" id="backupStatVolume">0 B</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Preserved Storage Data</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Recovery Ready</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--bright);" id="backupStatRecovery">0 Ready</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Rollback Available</div>
+          </div>
+        </div>
+
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Snapshot ID</th>
+                  <th>Created At</th>
+                  <th>Files Count</th>
+                  <th>Total Size</th>
+                  <th>SHA-256 Hash</th>
+                  <th>Integrity Status</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="snapshotsTableBody">
+                <tr><td colspan="8" style="text-align: center; color: var(--muted-foreground); padding: 20px;">Loading snapshot inventory...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: RECOVERY ================= -->
+      <section id="tab-recovery" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Storage Recovery Console</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Safe point-in-time restoration with automated pre-flight integrity verification.</p>
+          </div>
+          <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px;" onclick="loadRecovery()">Refresh Recovery</button>
+        </div>
+
+        <!-- Recovery Telemetry Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Valid Recovery Points</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--success);" id="recoveryStatPoints">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">SHA-256 Verified Targets</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">System Recovery State</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--bright);" id="recoveryStatState">Ready</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Instant Rollback Engine</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Safety Snapshot Policy</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--foreground);" id="recoveryStatPolicy">Pre-Restore</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Reversible Checkpoints</div>
+          </div>
+          <div class="glass" style="border-radius: 1.25rem; padding: 1rem 1.25rem;">
+            <div style="font-size: 12px; color: var(--muted-foreground); font-weight: 500;">Past Restorations</div>
+            <div style="font-size: 24px; font-weight: 700; margin-top: 4px;" id="recoveryStatCount">0</div>
+            <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Audited In SQLite</div>
+          </div>
+        </div>
+
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.75rem;">Available Recovery Points</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Snapshot ID</th>
+                  <th>Created At</th>
+                  <th>Files</th>
+                  <th>Size</th>
+                  <th>Integrity Status</th>
+                  <th>Rollback Readiness</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recoveryPointsTableBody">
+                <tr><td colspan="7" style="text-align: center; color: var(--muted-foreground); padding: 20px;">Checking recovery targets...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.75rem;">Past Recovery Audit History</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Recovery ID</th>
+                  <th>Snapshot Restored</th>
+                  <th>Safety Checkpoint</th>
+                  <th>Started At</th>
+                  <th>Status</th>
+                  <th>Restored Files</th>
+                  <th>Verification</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="recoveryHistoryTableBody">
+                <tr><td colspan="8" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No restorations logged.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 7: AI ANALYSIS ================= -->
+      <section id="tab-ai-analysis" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Explainable AI & Risk Analysis</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Multi-stage anomaly correlation, entropy breakdown, and decision transparency.</p>
+          </div>
+          <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px;" onclick="loadAIAnalysis()">Refresh Analysis</button>
+        </div>
+
+        <!-- Anomaly Scoring Bar & Action Box -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="font-size: 16px; font-weight: 600;">Ransomware Risk Assessment</h3>
+              <span id="aiSeverityBadge" class="badge badge-low">LOW SEVERITY</span>
+            </div>
+            <div style="font-size: 38px; font-weight: 700; color: var(--bright);" id="aiRiskScoreNumber">0 <span style="font-size: 16px; color: var(--muted-foreground); font-weight: 500;">/ 100</span></div>
+            <div style="height: 12px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin: 12px 0;">
+              <div id="aiRiskScoreBar" style="width: 5%; height: 100%; background: var(--success); transition: all 0.4s ease;"></div>
+            </div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--foreground); margin-bottom: 4px;" id="aiClassificationText">Nominal Storage Operation</div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted-foreground);">
+              <span>Confidence: <b id="aiThreatProbText" style="color: var(--foreground);">0%</b></span>
+              <span id="aiAnalysisTimeText">Real-Time Evaluation</span>
+            </div>
+          </div>
+
+          <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="font-size: 16px; font-weight: 600;">Recommended Defensive Action</h3>
+                <span class="badge badge-info" id="aiActionBadge">Zero-Trust Policy</span>
+              </div>
+              <p id="aiRecommendedActionText" style="font-size: 14px; font-weight: 500; color: var(--foreground); line-height: 1.5;">
+                Continue normal background monitoring. All filesystem operations match baseline profile.
+              </p>
+            </div>
+            <div class="glass-inset" style="padding: 10px 14px; border-radius: 12px; font-size: 12px; color: var(--muted-foreground); margin-top: 12px;">
+              <b>Behavioral Correlation:</b> Multi-stage sliding window correlation + Shannon entropy encryption fingerprinting.
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavioral Features Breakdown -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 1rem;">Behavioral Anomaly Feature Vector</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <span>Shannon Entropy</span>
+                <span id="featEntropyVal">0.00</span>
+              </div>
+              <div style="height: 6px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 8px;">
+                <div id="featEntropyBar" style="width: 0%; height: 100%; background: var(--bright); transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <span>Write Frequency</span>
+                <span id="featFreqVal">0.00</span>
+              </div>
+              <div style="height: 6px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 8px;">
+                <div id="featFreqBar" style="width: 0%; height: 100%; background: var(--bright); transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <span>Suspicious Extensions</span>
+                <span id="featExtVal">0.00</span>
+              </div>
+              <div style="height: 6px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 8px;">
+                <div id="featExtBar" style="width: 0%; height: 100%; background: var(--bright); transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <span>Burst Clustering</span>
+                <span id="featBurstVal">0.00</span>
+              </div>
+              <div style="height: 6px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 8px;">
+                <div id="featBurstBar" style="width: 0%; height: 100%; background: var(--bright); transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <span>Process Profile</span>
+                <span id="featProcVal">0.00</span>
+              </div>
+              <div style="height: 6px; width: 100%; border-radius: 9999px; background: rgba(0,0,0,0.06); overflow: hidden; margin-top: 8px;">
+                <div id="featProcBar" style="width: 0%; height: 100%; background: var(--bright); transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explainable Telemetry Evidence -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 0.75rem;">Explainable Detection Evidence</h3>
+          <ul id="aiEvidenceContainer" style="list-style-type: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+            <li class="glass-inset" style="padding: 10px 14px; border-radius: 12px;">Filesystem activity strictly adheres to nominal baseline thresholds.</li>
+          </ul>
+        </div>
+
+        <!-- Multi-Stage Pipeline -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 1rem;">Explainable AI Detection Pipeline</h3>
+          <div id="aiPipelineContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <!-- Populated via API -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 8: REPORTS ================= -->
+      <section id="tab-reports" class="tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600;">Security Audit Reports & Compliance Logs</h2>
+            <p style="font-size: 13px; color: var(--muted-foreground);">Database-backed audit summaries, threat telemetry, and exportable compliance logs.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn-secondary" style="padding: 9px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="runPhase10Verification()">
+              Run Phase 10 Verification
+            </button>
+            <button class="btn-liquid" style="padding: 9px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="exportAuditReport()">
+              Download Report (JSON) 📥
+            </button>
+          </div>
+        </div>
+
+        <!-- Executive Security Summary Card -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h3 style="font-size: 16px; font-weight: 600;">Executive Security Summary</h3>
+              <span id="reportSecurityStatusBadge" class="badge badge-low" style="font-size: 12px; padding: 3px 10px;">PROTECTED</span>
+              <span style="font-size: 12px; color: var(--muted-foreground);">Risk Tier: <strong id="reportRiskLevelText" style="color: var(--foreground);">LOW</strong></span>
+            </div>
+            <div style="font-size: 12px; color: var(--muted-foreground); display: flex; gap: 12px;">
+              <span id="reportIdLabel">Report ID: --</span>
+              <span id="reportGeneratedTime">Generated: Just now</span>
+            </div>
+          </div>
+
+          <!-- Top-Level Highlights -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div class="glass-inset" style="padding: 14px; border-radius: 16px; text-align: center;">
+              <div style="font-size: 12px; color: var(--muted-foreground);">Total Events Logged</div>
+              <div style="font-size: 26px; font-weight: 700;" id="reportTotalEvents">0</div>
+            </div>
+            <div class="glass-inset" style="padding: 14px; border-radius: 16px; text-align: center;">
+              <div style="font-size: 12px; color: var(--muted-foreground);">Active Threats</div>
+              <div style="font-size: 26px; font-weight: 700; color: var(--danger);" id="reportActiveThreats">0</div>
+            </div>
+            <div class="glass-inset" style="padding: 14px; border-radius: 16px; text-align: center;">
+              <div style="font-size: 12px; color: var(--muted-foreground);">Valid Snapshots</div>
+              <div style="font-size: 26px; font-weight: 700; color: var(--bright);" id="reportValidSnapshots">0</div>
+            </div>
+            <div class="glass-inset" style="padding: 14px; border-radius: 16px; text-align: center;">
+              <div style="font-size: 12px; color: var(--muted-foreground);">Current AI Risk</div>
+              <div style="font-size: 26px; font-weight: 700;" id="reportAiRiskScore">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Granular Telemetry Pillar Cards (All 20 Required Metrics) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+          
+          <!-- Pillar 1: Security Event Statistics -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>📁 Security Events</span>
+              <span class="badge badge-info" id="repEvtBadgeTotal">-- total</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>Created Files:</span> <strong id="repEvtCreated">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Modified Files:</span> <strong id="repEvtModified">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Renamed Files:</span> <strong id="repEvtRenamed">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Deleted Files:</span> <strong id="repEvtDeleted">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Suspicious Operations:</span> <strong id="repEvtSuspicious" style="color: var(--danger);">0</strong></div>
+            </div>
+          </div>
+
+          <!-- Pillar 2: Threat Statistics -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>🚨 Threat Intelligence</span>
+              <span class="badge badge-critical" id="repThrBadgeTotal">0 flagged</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>Total Threats Detected:</span> <strong id="reportTotalThreats">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Active Threats:</span> <strong id="repThrActive" style="color: var(--danger);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Resolved Threats:</span> <strong id="reportResolvedThreats" style="color: var(--success);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Critical Threats:</span> <strong id="reportCriticalThreats" style="color: #dc2626;">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>High-Risk Threats:</span> <strong id="reportHighThreats" style="color: #ef4444;">0</strong></div>
+            </div>
+          </div>
+
+          <!-- Pillar 3: Snapshot Integrity -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>🛡️ Snapshot Integrity</span>
+              <span class="badge badge-low" id="repSnapBadgeStatus">Valid</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>Valid Snapshots:</span> <strong id="reportTotalSnapshots" style="color: var(--bright);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Corrupted Snapshots:</span> <strong id="reportCorruptedSnapshots" style="color: var(--danger);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Recovery-Ready Points:</span> <strong id="repSnapReady">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Total Backup Volume:</span> <strong id="repSnapVolume">0 B</strong></div>
+            </div>
+          </div>
+
+          <!-- Pillar 4: Recovery Statistics -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>🔄 Recovery Operations</span>
+              <span class="badge badge-info" id="repRecBadgeCount">-- ops</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>Total Recovery Operations:</span> <strong id="reportTotalRecoveries">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Successful Recoveries:</span> <strong id="reportSuccessRecoveries" style="color: var(--success);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Failed Recoveries:</span> <strong id="reportFailedRecoveries" style="color: var(--danger);">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Rolled-Back Recoveries:</span> <strong id="reportRolledBackRecoveries" style="color: var(--warning);">0</strong></div>
+            </div>
+          </div>
+
+          <!-- Pillar 5: AI Risk Summary -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>🧠 Explainable AI Risk</span>
+              <span class="badge badge-info" id="reportAiSeverity">INFO</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>AI Risk Score:</span> <strong><span id="repAiScoreVal">0</span> / 100</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Baseline Confidence:</span> <strong id="reportBaselineConfidence">High</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Telemetry Confidence:</span> <strong id="repAiConfidenceVal">--%</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Classification:</span> <strong id="repAiClassification" style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Normal</strong></div>
+            </div>
+          </div>
+
+          <!-- Pillar 6: Storage Telemetry -->
+          <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+              <span>💾 Storage Telemetry</span>
+              <span class="badge badge-low" id="repStorePercentBadge">--% used</span>
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+              <div style="display: flex; justify-content: space-between;"><span>Protected Files Count:</span> <strong id="reportProtectedFiles">0</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Storage Usage:</span> <strong id="reportStorageUsage">0 B</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Monitored Storage Volume:</span> <strong id="repStoreMonBytes">0 B</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Total Drive Capacity:</span> <strong id="repStoreCapacity">0 B</strong></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Latest System Activity Triad -->
+        <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.75rem;">⚡ Latest Activity Stream</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-size: 13px;">
+              <div style="color: var(--muted-foreground); font-size: 11px; margin-bottom: 4px;">Latest Security Event</div>
+              <div style="font-weight: 600;" id="reportLatestEvent">None recorded</div>
+            </div>
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-size: 13px;">
+              <div style="color: var(--muted-foreground); font-size: 11px; margin-bottom: 4px;">Latest Threat Detected</div>
+              <div style="font-weight: 600;" id="reportLatestThreat">No threats active</div>
+            </div>
+            <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-size: 13px;">
+              <div style="color: var(--muted-foreground); font-size: 11px; margin-bottom: 4px;">Latest Recovery Operation</div>
+              <div style="font-weight: 600;" id="reportLatestRecovery">No past recoveries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Defensive Recommendations -->
+        <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 0.6rem;">💡 Dynamic Defensive Recommendations</h4>
+          <ul id="reportRecommendationsList" style="list-style-type: disc; padding-left: 20px; font-size: 13px; color: var(--foreground); display: flex; flex-direction: column; gap: 6px;">
+            <li>Continue normal monitoring and maintain verified recovery points.</li>
+          </ul>
+        </div>
+
+        <!-- Compliance & Audit Evidence Matrix -->
+        <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div>
+              <h4 style="font-size: 14px; font-weight: 600;">📋 Compliance & Telemetry Evidence Matrix</h4>
+              <p style="font-size: 12px; color: var(--muted-foreground);">Live SQLite Telemetry Verification (Operational Defensive Baseline)</p>
+            </div>
+            <span class="badge badge-info" id="complianceSummaryBadge">8 Controls Verified</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Control ID</th>
+                  <th>Defensive Capability</th>
+                  <th>Observed Telemetry Metric</th>
+                  <th style="width: 170px;">Evidence Status</th>
+                </tr>
+              </thead>
+              <tbody id="complianceEvidenceTableBody">
+                <tr><td colspan="4" style="text-align: center; color: var(--muted-foreground);">Loading compliance evidence...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Audit & Compliance Activity Logs -->
+        <div class="glass" style="border-radius: 1.25rem; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h4 style="font-size: 14px; font-weight: 600;">📜 Persistent Security Audit Trail</h4>
+              <p style="font-size: 12px; color: var(--muted-foreground);">Forensic log of critical events, threat remediations, snapshots, and recovery operations.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="auditSeverityFilter" class="glass" style="padding: 6px 12px; border-radius: 10px; font-size: 12px; outline: none;" onchange="loadReportsAudit()">
+                <option value="">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="WARNING">Warning</option>
+                <option value="INFO">Info</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 85px;">Time</th>
+                  <th style="width: 130px;">Audit ID</th>
+                  <th>Event Type</th>
+                  <th style="width: 85px;">Severity</th>
+                  <th>Source</th>
+                  <th>Action</th>
+                  <th>Result</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsTableBody">
+                <tr><td colspan="8" style="text-align: center; color: var(--muted-foreground);">Loading audit records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 9: SETTINGS ================= -->
+      <section id="tab-settings" class="tab-pane" style="display: none;">
+        <div style="margin-bottom: 1.25rem;">
+          <h2 style="font-size: 20px; font-weight: 600;">System Settings</h2>
+          <p style="font-size: 13px; color: var(--muted-foreground);">Operational parameters, detection sensitivity, and sandbox configuration.</p>
+        </div>
+
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.5rem; max-width: 640px;">
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+              <label style="font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px;">Protected Storage Directory</label>
+              <input type="text" id="settingsStorageInput" class="glass" style="width: 100%; padding: 10px 16px; border-radius: 12px; font-size: 13px; outline: none;" value="protected_storage">
+            </div>
+
+            <div>
+              <label style="font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px;">Entropy Encryption Threshold (Bits/Byte)</label>
+              <input type="number" step="0.1" id="settingsEntropyInput" class="glass" style="width: 100%; padding: 10px 16px; border-radius: 12px; font-size: 13px; outline: none;" value="7.3">
+              <span style="font-size: 11px; color: var(--muted-foreground);">Scale 0.0 to 8.0. Standard documents: 3.5 - 6.5. Encrypted ciphertext: 7.4 - 8.0.</span>
+            </div>
+
+            <div>
+              <label style="font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px;">Real-Time Watchdog Monitoring</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="settingsMonitorCheckbox" checked style="width: 18px; height: 18px; cursor: pointer;">
+                <span style="font-size: 13px;">Enable filesystem hook on protected directory</span>
+              </div>
+            </div>
+
+            <button class="btn-liquid" style="padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; margin-top: 0.5rem;" onclick="saveSettings()">
+              Save Configuration
+            </button>
+          </div>
+        </div>
+
+        <!-- Presentation Session Reset Card -->
+        <div class="glass" style="border-radius: 1.5rem; padding: 1.5rem; max-width: 640px; margin-top: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 600;">Presentation Session Control</h3>
+              <p style="font-size: 12px; color: var(--muted-foreground);">Reset demo telemetry and generate a pristine presentation baseline.</p>
+            </div>
+            <span class="glass" id="settingsSessionBadge" style="padding: 4px 10px; border-radius: 9999px; font-family: monospace; font-size: 11px;">Session: --</span>
+          </div>
+          <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 1rem; line-height: 1.5;">
+            Safely purges previous demo simulation files, generated test threats, and mock snapshots without touching system configuration, source code, or permanent files.
+          </p>
+          <button class="btn-secondary" style="padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;" onclick="openDemoResetModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+            Reset Demo
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Interactive Recovery Confirmation Modal -->
+  <div id="recoveryModal" class="modal-backdrop">
+    <div class="glass-strong modal-box">
+      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Confirm Storage Restoration</h3>
+      <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 14px;" id="modalRecoverySubtitle">
+        Are you sure you want to restore protected files from this snapshot?
+      </p>
+
+      <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-size: 13px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Target Snapshot:</span> <strong id="modalSnapId">--</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Integrity Check:</span> <strong style="color: var(--success);" id="modalSnapIntegrity">Verified (SHA-256)</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Files to Restore:</span> <strong id="modalSnapFiles">--</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Safety Policy:</span> <strong style="color: var(--bright);">Automatic Pre-Restore Checkpoint</strong></div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="closeRecoveryModal()">Cancel</button>
+        <button class="btn-liquid" style="padding: 8px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600;" id="modalConfirmRestoreBtn" onclick="handleConfirmRestoreClick()">Confirm & Restore</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Safe Simulation Control Modal (Phase 11) -->
+  <div id="simulationModal" class="modal-backdrop">
+    <div class="glass-strong modal-box" style="max-width: 620px; width: 92%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="glass-inset" style="width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--bright);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700;">Safe Ransomware Simulation</h3>
+            <p style="font-size: 12px; color: var(--muted-foreground);">Strictly isolated to <code>protected_storage/demo/</code></p>
+          </div>
+        </div>
+        <button class="glass" style="width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;" onclick="closeSimulationModal()">✕</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 14px;">
+        Generates harmless filesystem telemetry to exercise detection, AI risk explanation, snapshots, and recovery. <strong>Never encrypts real user files.</strong>
+      </p>
+
+      <!-- Intensity Selection Grid -->
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); display: block; margin-bottom: 8px;">Select Simulation Intensity</label>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div class="glass-inset" id="simCardLow" onclick="selectSimIntensity('LOW')" style="border-radius: 12px; padding: 12px; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span class="badge badge-low" style="font-size: 11px;">LOW</span>
+              <span style="font-size: 12px; color: var(--muted-foreground);">4 files</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 2px;">Benign Activity</div>
+            <div style="font-size: 11px; color: var(--muted-foreground);">Routine writes, no extensions. Risk: LOW</div>
+          </div>
+
+          <div class="glass-inset" id="simCardMedium" onclick="selectSimIntensity('MEDIUM')" style="border-radius: 12px; padding: 12px; cursor: pointer; border: 1.5px solid var(--bright); background: rgba(59, 130, 246, 0.08); transition: all 0.2s;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span class="badge badge-high" style="font-size: 11px;">MEDIUM</span>
+              <span style="font-size: 12px; color: var(--muted-foreground);">8 files</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 2px;">Suspicious Bursts</div>
+            <div style="font-size: 11px; color: var(--muted-foreground);">Entropy spikes & .locked. Risk: HIGH</div>
+          </div>
+
+          <div class="glass-inset" id="simCardHigh" onclick="selectSimIntensity('HIGH')" style="border-radius: 12px; padding: 12px; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span class="badge badge-critical" style="font-size: 11px;">HIGH</span>
+              <span style="font-size: 12px; color: var(--muted-foreground);">16 files</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 2px;">Critical Burst</div>
+            <div style="font-size: 11px; color: var(--muted-foreground);">Mass renames & deletes. Risk: CRITICAL</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Simulation Progress Bar -->
+      <div id="simProgressContainer" class="glass-inset" style="padding: 12px; border-radius: 14px; margin-bottom: 14px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px;">
+          <span style="font-weight: 600;" id="simStageText">Stage: Initializing...</span>
+          <span id="simProgressPct" style="font-weight: 700; color: var(--bright);">0%</span>
+        </div>
+        <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.06); border-radius: 9999px; overflow: hidden;">
+          <div id="simProgressBar" style="width: 0%; height: 100%; background: var(--gradient-primary); border-radius: 9999px; transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Live Telemetry Status Grid -->
+      <div class="glass-inset" style="padding: 14px; border-radius: 14px; font-size: 13px; margin-bottom: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Simulation Intensity:</span> <br><strong id="simIntensityDisplay">MEDIUM</strong></div>
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Simulation ID:</span> <br><strong id="simIdDisplay" style="font-family: monospace; font-size: 12px;">None</strong></div>
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Files Generated:</span> <br><strong id="simFilesDisplay">0</strong></div>
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Events Generated:</span> <br><strong id="simEventsDisplay">0</strong></div>
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Current Risk:</span> <br><strong id="simRiskDisplay">0 / 100</strong></div>
+          <div><span style="color: var(--muted-foreground); font-size: 12px;">Detection Status:</span> <br><strong id="simDetectionStatusDisplay">Ready to Execute</strong></div>
+        </div>
+      </div>
+
+      <!-- Actions Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" id="simCleanBtn" onclick="cleanupSimulationSandbox()">
+          🧹 Clean Sandbox
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="closeSimulationModal()">Cancel</button>
+          <button class="btn-liquid" style="padding: 8px 22px; border-radius: 9999px; font-size: 13px; font-weight: 600;" id="simRunBtn" onclick="runSelectedSimulation()">
+            ▶ Start Safe Simulation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fresh Presentation Demo Reset Confirmation Modal -->
+  <div id="demoResetModal" class="modal-backdrop">
+    <div class="glass-strong modal-box" style="max-width: 500px; width: 92%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="glass-inset" style="width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--warning);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700;">Reset Demo for Presentation</h3>
+            <p style="font-size: 12px; color: var(--muted-foreground);">Start a clean, zero-baseline presentation state</p>
+          </div>
+        </div>
+        <button class="glass" style="width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;" onclick="closeDemoResetModal()">✕</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 14px; line-height: 1.5;">
+        Start a fresh presentation session?<br>
+        Previous demo-generated data will be cleared.
+      </p>
+
+      <div class="glass-inset" style="padding: 12px; border-radius: 14px; font-size: 12px; margin-bottom: 16px; line-height: 1.6;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Demo Telemetry & Events:</span> <strong style="color: var(--warning);">Purged</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Simulated Threat Incidents:</span> <strong style="color: var(--warning);">Purged</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Demo Checkpoints & Files:</span> <strong style="color: var(--warning);">Purged</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Permanent System Files & Code:</span> <strong style="color: var(--success);">100% Preserved</strong></div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-secondary" style="padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600;" onclick="closeDemoResetModal()">Cancel</button>
+        <button class="btn-liquid" style="padding: 8px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #ef4444);" id="confirmDemoResetBtn" onclick="performDemoReset()">Start Fresh Demo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Application Logic & API / WebSocket Bridge -->
+  <script>
+    const API_BASE = window.location.origin.includes('http') ? window.location.origin + '/api' : 'http://localhost:8000/api';
+    const WS_URL = window.location.origin.includes('http')
+      ? (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/monitor'
+      : 'ws://localhost:8000/ws/monitor';
+
+    let activeTab = 'dashboard';
+    let socket = null;
+    let isMonitoring = true;
+    let selectedSnapshotForRestore = null;
+
+    let activityHistory = [
+      { time: '-4m', c: 0, m: 0, d: 0, r: 0 },
+      { time: '-3m', c: 0, m: 0, d: 0, r: 0 },
+      { time: '-2m', c: 0, m: 0, d: 0, r: 0 },
+      { time: '-1m', c: 0, m: 0, d: 0, r: 0 },
+      { time: 'Now', c: 0, m: 0, d: 0, r: 0 }
+    ];
+
+    // Presentation Mode Demo Reset
+    function openDemoResetModal() {
+      const modal = document.getElementById('demoResetModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeDemoResetModal() {
+      const modal = document.getElementById('demoResetModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    async function performDemoReset() {
+      const btn = document.getElementById('confirmDemoResetBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Resetting...';
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/demo/reset`, { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+          const newSession = data.demo_session_id;
+          const sBadge = document.getElementById('headerSessionId');
+          if (sBadge) sBadge.textContent = newSession;
+          const setBadge = document.getElementById('settingsSessionBadge');
+          if (setBadge) setBadge.textContent = `Session: ${newSession}`;
+
+          // Reset activity history to zero baseline
+          activityHistory = [
+            { time: '-4m', c: 0, m: 0, d: 0, r: 0 },
+            { time: '-3m', c: 0, m: 0, d: 0, r: 0 },
+            { time: '-2m', c: 0, m: 0, d: 0, r: 0 },
+            { time: '-1m', c: 0, m: 0, d: 0, r: 0 },
+            { time: 'Now', c: 0, m: 0, d: 0, r: 0 }
+          ];
+          renderActivityChart({ files_created: 0, files_modified: 0, files_deleted: 0, files_renamed: 0 });
+
+          // Refresh all views seamlessly without browser reload
+          await Promise.all([
+            loadDashboard(),
+            loadEventsTable(),
+            loadThreats(),
+            loadStorage(),
+            loadSnapshots(),
+            loadRecovery(),
+            loadAIAnalysis(),
+            loadReports()
+          ]);
+
+          // Reconnect or refresh WebSocket if not connected
+          if (!socket || socket.readyState !== WebSocket.OPEN) {
+            connectWebSocket();
+          }
+
+          closeDemoResetModal();
+          showToast(`✨ Fresh Presentation Session Active: ${newSession}`, 'success');
+        } else {
+          showToast(`Demo reset failed: ${data.message || 'Unknown error'}`, 'danger');
+        }
+      } catch (err) {
+        showToast('Error resetting demo: ' + err.message, 'danger');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Start Fresh Demo';
+        }
+      }
+    }
+
+    // Toast Notification Utility
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'glass-strong toast-item';
+
+      let icon = 'ℹ️';
+      if (type === 'success') icon = '✅';
+      if (type === 'danger') icon = '🚨';
+      if (type === 'warning') icon = '⚠️';
+
+      toast.innerHTML = `<span style="font-size: 18px;">${icon}</span><span style="flex: 1;">${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+      const targetPane = document.getElementById(`tab-${tabId}`);
+      if (targetPane) targetPane.style.display = 'block';
+
+      document.querySelectorAll('.nav-item').forEach(el => {
+        if (el.getAttribute('data-tab') === tabId) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      // Update titles
+      const titles = {
+        'dashboard': ['Welcome back, Admin 👋', "Here's what's happening with your storage today."],
+        'live-monitor': ['Live Storage Monitor ⚡', 'Real-time filesystem events and operational metrics.'],
+        'threats': ['Threat Intelligence Center 🛡️', 'Automated anomaly detection and containment console.'],
+        'storage': ['Storage Volume Management 📁', 'Protected paths, drive capacity, and file distribution.'],
+        'backups': ['Backup & Snapshot Catalog 📦', 'Cryptographically verified SHA-256 storage checkpoints.'],
+        'recovery': ['Storage Recovery Console 🔄', 'Verified rollback points and disaster recovery audit log.'],
+        'ai-analysis': ['Explainable AI & Risk Breakdown 🧠', 'Transparent behavioral anomaly analysis and pipeline meters.'],
+        'reports': ['Security Audit Reports 📊', 'Consolidated audit intelligence and downloadable compliance exports.'],
+        'settings': ['System Configuration ⚙️', 'Runtime parameters and storage defense thresholds.']
+      };
+
+      if (titles[tabId]) {
+        document.getElementById('pageTitle').textContent = titles[tabId][0];
+        document.getElementById('pageSubtitle').textContent = titles[tabId][1];
+      }
+
+      try {
+        if (window.location.protocol.startsWith('http')) {
+          window.history.replaceState(null, '', '/' + (tabId === 'dashboard' ? '' : tabId));
+        }
+      } catch (_) {}
+
+      // Load specific tab data
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'live-monitor') loadEventsTable();
+      if (tabId === 'threats') loadThreats();
+      if (tabId === 'storage') loadStorage();
+      if (tabId === 'backups') loadSnapshots();
+      if (tabId === 'recovery') loadRecovery();
+      if (tabId === 'ai-analysis') loadAIAnalysis();
+      if (tabId === 'reports') loadReports();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const tab = item.getAttribute('data-tab');
+        if (tab) switchTab(tab);
+      });
+    });
+
+    // 1. Dashboard Data Fetching
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${API_BASE}/dashboard`);
+        if (!res.ok) throw new Error('API offline');
+        const data = await res.json();
+
+        document.getElementById('statFilesMonitored').textContent = Number(data.files_monitored).toLocaleString();
+        document.getElementById('statThreatsDetected').textContent = data.threats_detected;
+        document.getElementById('statThreatsDetectedSub').textContent = `${data.active_threats} active incidents`;
+        document.getElementById('statStorageHealth').textContent = `${data.storage_health_percentage}%`;
+        document.getElementById('statBackupPoints').textContent = data.backup_points_count;
+        document.getElementById('headerThreatBadge').textContent = data.active_threats;
+
+        // Radar Card
+        const risk = data.current_risk_score;
+        document.getElementById('radarStatusPill').textContent = data.protection_status;
+        if (risk >= 60) {
+          document.getElementById('radarStatusPill').className = 'badge badge-critical';
+          document.getElementById('radarMainText').textContent = 'Threat Detected!';
+          document.getElementById('radarSubText').textContent = `${risk}/100 Risk Score flagged`;
+        } else {
+          document.getElementById('radarStatusPill').className = 'badge badge-low';
+          document.getElementById('radarMainText').textContent = 'You are Protected!';
+          document.getElementById('radarSubText').textContent = 'No active ransomware detected';
+        }
+
+        // Backup overview donut numbers & status
+        const donutTotal = document.getElementById('donutTotalBackups');
+        if (donutTotal) donutTotal.textContent = data.backup_points_count;
+
+        const donutValid = document.getElementById('donutValidSnapshots');
+        if (donutValid) {
+          const valPct = typeof data.valid_snapshots_percentage === 'number' ? data.valid_snapshots_percentage : 100;
+          donutValid.textContent = `${valPct}%`;
+        }
+
+        const donutReady = document.getElementById('donutReadySnapshots');
+        if (donutReady) {
+          donutReady.textContent = data.backup_points_count > 0 ? 'Active' : 'Standby';
+        }
+
+        if (data.latest_snapshot) {
+          const snapCardId = document.getElementById('latestSnapshotCardId');
+          if (snapCardId) snapCardId.textContent = data.latest_snapshot.snapshot_id;
+
+          const latestTime = document.getElementById('donutLatestTime');
+          if (latestTime) latestTime.textContent = new Date(data.latest_snapshot.created_at).toLocaleTimeString();
+
+          const snapCardStatus = document.getElementById('latestSnapshotCardStatus');
+          if (snapCardStatus) {
+            const st = data.latest_snapshot.integrity_status || 'Valid';
+            snapCardStatus.textContent = st;
+            snapCardStatus.className = (st === 'Valid' || st === 'VERIFIED') ? 'badge badge-low' : 'badge badge-critical';
+          }
+        } else {
+          const snapCardId = document.getElementById('latestSnapshotCardId');
+          if (snapCardId) snapCardId.textContent = 'None';
+
+          const latestTime = document.getElementById('donutLatestTime');
+          if (latestTime) latestTime.textContent = '--';
+
+          const snapCardStatus = document.getElementById('latestSnapshotCardStatus');
+          if (snapCardStatus) {
+            snapCardStatus.textContent = 'Standby';
+            snapCardStatus.className = 'badge badge-info';
+          }
+        }
+
+        if (data.demo_session_id) {
+          const sBadge = document.getElementById('headerSessionId');
+          if (sBadge) sBadge.textContent = data.demo_session_id;
+          const setBadge = document.getElementById('settingsSessionBadge');
+          if (setBadge) setBadge.textContent = `Session: ${data.demo_session_id}`;
+        }
+
+        // Recent events list
+        renderRecentEvents(data.recent_events || []);
+        renderActivityChart(data.storage_metrics);
+      } catch (err) {
+        console.warn('Dashboard fetch fallback:', err);
+      }
+    }
+
+    function renderRecentEvents(events) {
+      const container = document.getElementById('dashboardRecentEventsList');
+      if (!events || events.length === 0) {
+        container.innerHTML = `<li style="font-size: 13px; color: var(--muted-foreground); text-align: center; padding: 12px;">No security events logged yet.</li>`;
+        return;
+      }
+
+      container.innerHTML = events.slice(0, 4).map(e => {
+        let iconBg = 'rgba(18, 104, 213, 0.15)';
+        let iconColor = '#1268D5';
+        let badgeClass = 'badge-info';
+
+        if (e.severity === 'CRITICAL' || e.severity === 'HIGH') {
+          iconBg = 'rgba(239, 68, 68, 0.15)';
+          iconColor = '#ef4444';
+          badgeClass = 'badge-high';
+        } else if (e.severity === 'MEDIUM') {
+          iconBg = 'rgba(245, 158, 11, 0.15)';
+          iconColor = '#f59e0b';
+          badgeClass = 'badge-medium';
+        } else if (e.event_type === 'created') {
+          iconBg = 'rgba(16, 185, 129, 0.15)';
+          iconColor = '#10b981';
+          badgeClass = 'badge-low';
+        }
+
+        const timeStr = new Date(e.timestamp).toLocaleTimeString();
+        let reasons = [];
+        try {
+          reasons = typeof e.detection_reasons === 'string' ? JSON.parse(e.detection_reasons) : e.detection_reasons;
+        } catch (_) { reasons = [e.detection_reasons]; }
+        const reasonSnippet = reasons && reasons[0] ? reasons[0] : `${e.file_name} (${e.event_type})`;
+
+        return `
+          <li style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; transition: background 0.2s;" class="event-row">
+            <span style="width: 34px; height: 34px; border-radius: 50%; background: ${iconBg}; color: ${iconColor}; display: grid; place-items: center; flex-shrink: 0; font-size: 14px;">
+              ${e.severity === 'CRITICAL' || e.severity === 'HIGH' ? '⚠️' : (e.event_type === 'created' ? '📄' : '📝')}
+            </span>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${reasonSnippet}</div>
+              <div style="font-size: 11px; color: var(--muted-foreground);">${e.file_name} · ${e.event_type}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+              <span style="font-size: 11px; color: var(--muted-foreground);">${timeStr}</span>
+              <span class="badge ${badgeClass}">${e.severity}</span>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function renderActivityChart(metrics) {
+      if (!metrics) return;
+      const g = document.getElementById('chartBarsGroup');
+      if (!g) return;
+
+      const created = metrics.files_created || 0;
+      const modified = metrics.files_modified || 0;
+      const deleted = metrics.files_deleted || 0;
+      const renamed = metrics.files_renamed || 0;
+
+      // Update current slot with real numbers
+      activityHistory[activityHistory.length - 1] = {
+        time: 'Now',
+        c: created,
+        m: modified,
+        d: deleted,
+        r: renamed
+      };
+
+      const maxVal = Math.max(
+        ...activityHistory.map(s => Math.max(s.c, s.m, s.d, s.r)),
+        10
+      );
+      const scaleH = (v) => v > 0 ? Math.min(130, Math.max(4, (v / maxVal) * 130)) : 0;
+
+      let svgHtml = '';
+      activityHistory.forEach((s, idx) => {
+        const xOffset = 50 + (idx * 110);
+        const cH = scaleH(s.c);
+        const mH = scaleH(s.m);
+        const dH = scaleH(s.d);
+        const rH = scaleH(s.r);
+
+        svgHtml += `
+          <rect x="${xOffset}" y="${180 - cH}" width="10" height="${cH}" rx="${cH > 0 ? 3 : 0}" fill="url(#g-created)" class="bar-rect"/>
+          <rect x="${xOffset + 14}" y="${180 - mH}" width="10" height="${mH}" rx="${mH > 0 ? 3 : 0}" fill="url(#g-modified)" class="bar-rect"/>
+          <rect x="${xOffset + 28}" y="${180 - dH}" width="10" height="${dH}" rx="${dH > 0 ? 3 : 0}" fill="url(#g-deleted)" class="bar-rect"/>
+          <rect x="${xOffset + 42}" y="${180 - rH}" width="10" height="${rH}" rx="${rH > 0 ? 3 : 0}" fill="url(#g-renamed)" class="bar-rect"/>
+          <text x="${xOffset + 26}" y="196" font-size="11" fill="var(--muted-foreground)" text-anchor="middle">${s.time}</text>
+        `;
+      });
+
+      g.innerHTML = svgHtml;
+    }
+
+    // 2. Live Monitor Table
+    async function loadEventsTable() {
+      try {
+        const [eventsRes, statusRes] = await Promise.all([
+          fetch(`${API_BASE}/events?limit=40`),
+          fetch(`${API_BASE}/system/status`)
+        ]);
+        const data = await eventsRes.json();
+        try {
+          const statusData = await statusRes.json();
+          if (statusData && statusData.metrics) {
+            const metrics = statusData.metrics;
+            const ops = document.getElementById('liveOpsSec');
+            if (ops) ops.textContent = (metrics.operations_per_second || 0).toFixed(1);
+            const c = document.getElementById('liveCreatedCount');
+            if (c) c.textContent = metrics.files_created;
+            const m = document.getElementById('liveModifiedCount');
+            if (m) m.textContent = metrics.files_modified;
+            const r = document.getElementById('liveRenamedCount');
+            if (r) r.textContent = metrics.files_renamed;
+            const d = document.getElementById('liveDeletedCount');
+            if (d) d.textContent = metrics.files_deleted;
+            const s = document.getElementById('liveSuspiciousCount');
+            if (s) s.textContent = metrics.suspicious_operations;
+            isMonitoring = Boolean(statusData.monitoring_active);
+            const toggleBtn = document.getElementById('toggleMonitorBtn');
+            if (toggleBtn) toggleBtn.textContent = isMonitoring ? 'Pause Monitor' : 'Resume Monitor';
+          }
+        } catch (_) {}
+
+        const tbody = document.getElementById('liveEventsTableBody');
+        if (!tbody) return;
+
+        if (!data.events || data.events.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No events recorded. Watchdog is monitoring...</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.events.map(e => {
+          let badge = 'badge-info';
+          if (e.severity === 'CRITICAL') badge = 'badge-critical';
+          if (e.severity === 'HIGH') badge = 'badge-high';
+          if (e.severity === 'MEDIUM') badge = 'badge-medium';
+          if (e.severity === 'LOW') badge = 'badge-low';
+
+          let reasons = [];
+          try {
+            reasons = typeof e.detection_reasons === 'string' ? JSON.parse(e.detection_reasons) : e.detection_reasons;
+          } catch (_) { reasons = [e.detection_reasons]; }
+
+          return `
+            <tr>
+              <td style="color: var(--muted-foreground); font-size: 12px;">${new Date(e.timestamp).toLocaleTimeString()}</td>
+              <td><b>${e.event_type}</b></td>
+              <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${e.file_name}</td>
+              <td>${formatBytes(e.file_size)}</td>
+              <td><span style="font-family: monospace; font-weight: 600;">${e.entropy ? e.entropy.toFixed(2) : '0.00'}</span></td>
+              <td style="color: var(--muted-foreground);">${e.process_name || 'system'}</td>
+              <td><strong>${e.risk_score}</strong>/100</td>
+              <td><span class="badge ${badge}">${e.severity}</span></td>
+              <td style="max-width: 260px; font-size: 12px; color: var(--foreground);">${reasons && reasons[0] ? reasons[0] : 'Normal operation'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Events table fetch error:', err);
+      }
+    }
+
+    // 3. Threats Table & Telemetry
+    async function loadThreats() {
+      try {
+        const res = await fetch(`${API_BASE}/threats`);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+
+        // Populate Threat Summary Telemetry Cards
+        const totalEl = document.getElementById('threatStatTotal');
+        if (totalEl) totalEl.textContent = data.total_threats ?? data.count ?? 0;
+
+        const activeEl = document.getElementById('threatStatActive');
+        if (activeEl) activeEl.textContent = data.active_threats ?? 0;
+
+        const critEl = document.getElementById('threatStatCritical');
+        if (critEl) critEl.textContent = data.critical_threats ?? 0;
+
+        const highEl = document.getElementById('threatStatHigh');
+        if (highEl) highEl.textContent = data.high_risk_threats ?? 0;
+
+        const resEl = document.getElementById('threatStatResolved');
+        if (resEl) resEl.textContent = data.resolved_threats ?? 0;
+
+        const tbody = document.getElementById('threatsTableBody');
+        if (!tbody) return;
+
+        if (!data.threats || data.threats.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No threats recorded. All storage writes normal.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.threats.map(t => {
+          let badge = 'badge-critical';
+          if (t.severity === 'HIGH') badge = 'badge-high';
+          else if (t.severity === 'MEDIUM') badge = 'badge-medium';
+          else if (t.severity === 'LOW') badge = 'badge-low';
+
+          const reasonsList = Array.isArray(t.detection_reasons) 
+            ? t.detection_reasons.join(' · ') 
+            : (t.detection_reasons || 'Behavioral anomaly detected');
+
+          let fileDisplay = 'Multiple files';
+          let filePathTooltip = '';
+          if (t.affected_files && t.affected_files.length > 0) {
+            const firstFile = t.affected_files[0];
+            filePathTooltip = firstFile;
+            const parts = firstFile.split(/[/\\]/);
+            fileDisplay = parts[parts.length - 1];
+            if (t.affected_files.length > 1) {
+              fileDisplay += ` (+${t.affected_files.length - 1})`;
+            }
+          }
+
+          const procName = (t.process_info && t.process_info.name) ? t.process_info.name : 'system';
+          const procPid = (t.process_info && t.process_info.pid) ? ` (${t.process_info.pid})` : '';
+
+          const isResolved = t.status === 'Resolved';
+          const statusBadge = isResolved
+            ? '<span class="badge badge-low">Resolved</span>'
+            : (t.status === 'Contained' 
+                ? '<span class="badge badge-info">Contained</span>' 
+                : '<span class="badge badge-critical">Active Alert</span>');
+
+          return `
+            <tr id="threat-row-${t.threat_id}">
+              <td><code>${t.threat_id}</code></td>
+              <td style="font-size: 12px; color: var(--muted-foreground);">${new Date(t.timestamp).toLocaleTimeString()}</td>
+              <td><span class="badge ${badge}">${t.severity}</span></td>
+              <td><strong style="color: var(--danger); font-size: 14px;">${t.risk_score}</strong>/100</td>
+              <td style="font-size: 12px; max-width: 270px; line-height: 1.4;">${reasonsList}</td>
+              <td style="font-size: 12px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${filePathTooltip}">${fileDisplay}</td>
+              <td style="font-size: 12px; color: var(--muted-foreground);">${procName}${procPid}</td>
+              <td>${statusBadge}</td>
+              <td>
+                ${!isResolved ? `
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn-liquid" style="padding: 4px 10px; border-radius: 9999px; font-size: 11px;" onclick="resolveThreat('${t.threat_id}')">Resolve</button>
+                    <button class="btn-secondary" style="padding: 4px 10px; border-radius: 9999px; font-size: 11px;" onclick="promptThreatRestore('${t.threat_id}')">Restore</button>
+                  </div>
+                ` : '<span style="color: var(--success); font-weight: 600; font-size: 12px;">✓ Contained</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Threats fetch error:', err);
+        showToast(`Failed to load threats: ${err.message}`, 'danger');
+      }
+    }
+
+    async function resolveThreat(threatId) {
+      try {
+        const res = await fetch(`${API_BASE}/threats/${threatId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Resolved' })
+        });
+        const result = await res.json();
+        if (res.ok) {
+          showToast(`Threat ${threatId} marked as Resolved.`, 'success');
+          await loadThreats();
+          if (activeTab === 'dashboard') loadDashboard();
+          if (activeTab === 'reports') loadReports();
+        } else {
+          showToast(result.detail || 'Failed to update threat status.', 'danger');
+        }
+      } catch (err) {
+        showToast(`Failed to update threat: ${err.message}`, 'danger');
+      }
+    }
+
+    async function promptThreatRestore(threatId) {
+      try {
+        const res = await fetch(`${API_BASE}/recovery`);
+        const data = await res.json();
+        const validList = data.valid_recovery_points || (data.available_recovery_points ? data.available_recovery_points.filter(s => s.integrity_status === 'Valid') : []);
+        if (validList && validList.length > 0) {
+          const targetSnap = data.latest_valid_snapshot || validList[0];
+          showToast(`Prepared verified recovery point for threat ${threatId}. Review snapshot details to confirm rollback.`, 'info');
+          openRecoveryModal(targetSnap.snapshot_id, targetSnap.file_count);
+        } else {
+          showToast('No clean, verified snapshot checkpoints found. Please create a snapshot first.', 'warning');
+        }
+      } catch (err) {
+        showToast(`Recovery error: ${err.message}`, 'danger');
+      }
+    }
+
+    // 4. Storage View
+    let isRefreshingStorage = false;
+
+    async function loadStorage(isManual = false) {
+      const btn = document.getElementById('refreshStorageBtn');
+      if (isManual) {
+        if (isRefreshingStorage || (btn && btn.disabled)) return;
+        isRefreshingStorage = true;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Refreshing...';
+        }
+      }
+      try {
+        const res = await fetch(`${API_BASE}/storage`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+
+        // 1. Path
+        const pathEl = document.getElementById('storageDirPath');
+        if (pathEl) pathEl.textContent = data.protected_directory || 'protected_storage/';
+
+        // 2. Monitored Storage Bytes & File Count
+        const bytesEl = document.getElementById('storageMonitoredBytesText');
+        if (bytesEl) bytesEl.textContent = formatBytes(data.monitored_storage_bytes);
+
+        const countEl = document.getElementById('storageFilesCountText');
+        if (countEl) countEl.textContent = data.monitored_files_count ?? (data.recent_monitored_files ? data.recent_monitored_files.length : 0);
+
+        // 3. Disk Space: Used, Free, Total, Percentage
+        const usedGBEl = document.getElementById('diskUsedGB');
+        if (usedGBEl) usedGBEl.textContent = `${(data.disk_used_bytes / (1024**3)).toFixed(1)} GB`;
+
+        const freeGBEl = document.getElementById('diskFreeGB');
+        if (freeGBEl) freeGBEl.textContent = `${(data.disk_free_bytes / (1024**3)).toFixed(1)} GB`;
+
+        const capGBEl = document.getElementById('diskCapacityGB');
+        if (capGBEl) capGBEl.textContent = `${(data.disk_capacity_bytes / (1024**3)).toFixed(1)} GB`;
+
+        const pct = typeof data.disk_used_percentage === 'number' ? data.disk_used_percentage : 0;
+        const pctEl = document.getElementById('diskPercentText');
+        if (pctEl) pctEl.textContent = `${pct}%`;
+
+        const barEl = document.getElementById('storageProgressBar');
+        if (barEl) barEl.style.width = `${Math.min(100, Math.max(3, pct))}%`;
+
+        // 4. Storage Health Badge
+        const healthEl = document.getElementById('storageHealthBadge');
+        if (healthEl) {
+          const healthScore = data.storage_health_percentage ?? 100;
+          healthEl.textContent = `Health: ${healthScore}%`;
+          healthEl.className = healthScore >= 90 ? 'badge badge-low' : (healthScore >= 70 ? 'badge badge-medium' : 'badge badge-critical');
+        }
+
+        // 5. Monitoring Status Badge
+        const monEl = document.getElementById('storageMonitoringBadge');
+        if (monEl) {
+          const isActive = Boolean(data.monitoring_active);
+          monEl.textContent = isActive ? 'Watchdog Active' : 'Watchdog Paused';
+          monEl.className = isActive ? 'badge badge-low' : 'badge badge-medium';
+        }
+
+        // 6. Monitored Files Table
+        const tbody = document.getElementById('storageFilesTableBody');
+        if (tbody) {
+          if (data.recent_monitored_files && data.recent_monitored_files.length > 0) {
+            tbody.innerHTML = data.recent_monitored_files.map(f => {
+              const modifiedDate = f.modified ? new Date(f.modified * 1000).toLocaleString() : '--';
+              const isSuspicious = f.extension === '.locked' || (f.name && f.name.includes('.locked'));
+              const statusBadge = isSuspicious 
+                ? '<span class="badge badge-critical">Flagged</span>'
+                : '<span class="badge badge-low">Clean</span>';
+
+              return `
+                <tr>
+                  <td><strong>${f.name}</strong></td>
+                  <td style="font-family: monospace; font-size: 12px; color: var(--muted-foreground);">${f.path}</td>
+                  <td><span class="badge badge-info">${f.extension || 'none'}</span></td>
+                  <td>${formatBytes(f.size_bytes)}</td>
+                  <td style="font-size: 12px; color: var(--muted-foreground);">${modifiedDate}</td>
+                  <td>${statusBadge}</td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No files found in monitored directory.</td></tr>`;
+          }
+        }
+
+        if (isManual) {
+          showToast('Storage refreshed successfully', 'success');
+        }
+      } catch (err) {
+        console.error('Storage fetch error:', err);
+        if (isManual) {
+          showToast('Unable to refresh storage data', 'danger');
+        } else {
+          showToast(`Failed to load storage telemetry: ${err.message}`, 'danger');
+        }
+      } finally {
+        if (isManual) {
+          isRefreshingStorage = false;
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Refresh';
+          }
+        }
+      }
+    }
+
+    function refreshStorage() {
+      return loadStorage(true);
+    }
+
+    async function updateStorageDirectory() {
+      const input = document.getElementById('newStorageDirInput');
+      const pathInput = input ? input.value.trim() : '';
+      if (!pathInput) {
+        showToast('Please enter a directory path.', 'warning');
+        return;
+      }
+
+      // Pre-validation for dangerous or invalid characters
+      const invalidChars = ['<', '>', '"', '|', '?', '*'];
+      for (const ch of invalidChars) {
+        if (pathInput.includes(ch)) {
+          showToast(`Invalid character "${ch}" in directory path.`, 'danger');
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/storage/configure`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ directory_path: pathInput })
+        });
+        const result = await res.json();
+        if (res.ok && result.success) {
+          const newPath = result.new_directory || pathInput;
+          const pathEl = document.getElementById('storageDirPath');
+          if (pathEl) pathEl.textContent = newPath;
+          const sInput = document.getElementById('settingsStorageInput');
+          if (sInput) sInput.value = newPath;
+          showToast(result.message || 'Storage directory successfully updated.', 'success');
+          if (input) input.value = '';
+          await loadStorage();
+          if (activeTab === 'dashboard') loadDashboard();
+        } else {
+          showToast(result.detail || result.message || 'Failed to update storage directory.', 'danger');
+        }
+      } catch (err) {
+        showToast(`Configuration error: ${err.message}`, 'danger');
+      }
+    }
+
+    // 5. Snapshots & Backups
+    async function loadSnapshots() {
+      try {
+        const res = await fetch(`${API_BASE}/snapshots`);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+
+        // Populate Backup Summary Telemetry Cards
+        const totalEl = document.getElementById('backupStatTotal');
+        if (totalEl) totalEl.textContent = data.total_snapshots ?? data.count ?? 0;
+
+        const validEl = document.getElementById('backupStatValid');
+        if (validEl) validEl.textContent = data.valid_snapshots ?? data.count ?? 0;
+
+        const volEl = document.getElementById('backupStatVolume');
+        if (volEl) volEl.textContent = formatBytes(data.total_volume_bytes || 0);
+
+        const recEl = document.getElementById('backupStatRecovery');
+        if (recEl) recEl.textContent = `${data.recovery_ready_count ?? data.count ?? 0} Ready`;
+
+        const tbody = document.getElementById('snapshotsTableBody');
+        if (!tbody) return;
+
+        if (!data.snapshots || data.snapshots.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--muted-foreground); padding: 20px;">No snapshots created yet.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.snapshots.map(s => {
+          let badgeClass = 'badge-low';
+          let statusText = s.integrity_status || 'Valid';
+          if (statusText === 'Valid' || statusText === 'VERIFIED') {
+            badgeClass = 'badge-low';
+          } else if (statusText === 'Corrupted' || statusText === 'INVALID') {
+            badgeClass = 'badge-critical';
+          } else if (statusText === 'Pending') {
+            badgeClass = 'badge-medium';
+          } else {
+            badgeClass = 'badge-info';
+          }
+
+          return `
+            <tr id="snap-row-${s.snapshot_id}">
+              <td><code>${s.snapshot_id}</code></td>
+              <td style="font-size: 12px; color: var(--muted-foreground);">${new Date(s.created_at).toLocaleString()}</td>
+              <td><b>${s.file_count}</b> files</td>
+              <td>${formatBytes(s.total_size_bytes)}</td>
+              <td style="font-family: monospace; font-size: 11px;" title="${s.integrity_hash}">
+                ${s.integrity_hash ? s.integrity_hash.slice(0, 16) + '...' : 'N/A'}
+              </td>
+              <td><span class="badge ${badgeClass}" id="snap-badge-${s.snapshot_id}">${statusText}</span></td>
+              <td style="font-size: 12px; color: var(--muted-foreground); max-width: 220px;">${s.description || 'Snapshot'}</td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-secondary" style="padding: 4px 10px; border-radius: 9999px; font-size: 11px;" onclick="verifySnapshot('${s.snapshot_id}')">Verify</button>
+                  ${(statusText === 'Valid' || statusText === 'VERIFIED')
+                    ? `<button class="btn-liquid" style="padding: 4px 10px; border-radius: 9999px; font-size: 11px;" onclick="promptRecoveryModal('${s.snapshot_id}', ${s.file_count})">Restore</button>`
+                    : `<button class="btn-secondary" style="padding: 4px 10px; border-radius: 9999px; font-size: 11px; opacity: 0.5; cursor: not-allowed;" disabled title="Corrupted snapshot cannot be restored">Restore</button>`
+                  }
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Snapshots load error:', err);
+        showToast(`Failed to load snapshot catalog: ${err.message}`, 'danger');
+      }
+    }
+
+    async function createSnapshotPrompt() {
+      const desc = prompt('Enter a label for this storage snapshot checkpoint:', 'Routine System Snapshot');
+      if (desc === null) return;
+
+      showToast('Creating immutable storage snapshot with cryptographic SHA-256 manifests...', 'info');
+      try {
+        const res = await fetch(`${API_BASE}/snapshots/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description: desc.trim() || 'Manual Checkpoint' })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`Snapshot created with ${data.snapshot.file_count} files (${formatBytes(data.snapshot.total_size_bytes)})`, 'success');
+          await loadSnapshots();
+          await loadDashboard();
+          if (activeTab === 'recovery') loadRecovery();
+          if (activeTab === 'reports') loadReports();
+        } else {
+          showToast(data.detail || data.message || 'Snapshot creation failed', 'danger');
+        }
+      } catch (err) {
+        showToast(`Snapshot error: ${err.message}`, 'danger');
+      }
+    }
+
+    async function verifySnapshot(snapshotId) {
+      try {
+        showToast(`Verifying cryptographic SHA-256 signatures for ${snapshotId}...`, 'info');
+        const res = await fetch(`${API_BASE}/snapshots/verify/${snapshotId}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.verified) {
+          showToast(`✅ Snapshot ${snapshotId} integrity verified successfully (${data.checked_files} files checked)!`, 'success');
+        } else {
+          showToast(`⚠️ Integrity warning for ${snapshotId}: ${data.message || 'Corrupted hash detected'}`, 'danger');
+        }
+        await loadSnapshots();
+        if (activeTab === 'dashboard') loadDashboard();
+        if (activeTab === 'reports') loadReports();
+      } catch (err) {
+        showToast(`Verification error: ${err.message}`, 'danger');
+      }
+    }
+
+    // 6. Recovery Console
+    async function loadRecovery() {
+      try {
+        const res = await fetch(`${API_BASE}/recovery`);
+        const data = await res.json();
+
+        // Update Recovery KPI cards
+        const pointsEl = document.getElementById('recoveryStatPoints');
+        if (pointsEl) pointsEl.textContent = data.total_valid_recovery_points ?? (data.valid_recovery_points ? data.valid_recovery_points.length : 0);
+
+        const stateEl = document.getElementById('recoveryStatState');
+        if (stateEl) {
+          stateEl.textContent = data.system_ready_for_recovery ? 'Ready' : 'No Points';
+          stateEl.style.color = data.system_ready_for_recovery ? 'var(--bright)' : 'var(--warning)';
+        }
+
+        const countEl = document.getElementById('recoveryStatCount');
+        if (countEl) countEl.textContent = (data.past_recoveries && data.past_recoveries.length) || 0;
+
+        const pointsTbody = document.getElementById('recoveryPointsTableBody');
+        const snapshots = data.available_recovery_points || [];
+        if (snapshots.length > 0) {
+          pointsTbody.innerHTML = snapshots.map(s => {
+            const isValid = s.integrity_status === 'Valid' || s.integrity_status === 'VERIFIED';
+            const badgeClass = isValid ? 'badge-low' : 'badge-critical';
+            const readinessBadge = isValid 
+              ? '<span class="badge badge-low">Ready for Rollback</span>' 
+              : '<span class="badge badge-critical">Cannot Restore</span>';
+
+            const actionBtn = isValid
+              ? `<button class="btn-liquid" style="padding: 5px 14px; border-radius: 9999px; font-size: 12px; font-weight: 600;" onclick="openRecoveryModal('${s.snapshot_id}', ${s.file_count})">Restore Storage</button>`
+              : `<button class="btn-secondary" style="padding: 5px 14px; border-radius: 9999px; font-size: 12px; opacity: 0.5; cursor: not-allowed;" disabled title="Snapshot failed integrity verification">Unverified</button>`;
+
+            return `
+              <tr>
+                <td><code>${s.snapshot_id}</code></td>
+                <td style="font-size: 12px; color: var(--muted-foreground);">${new Date(s.created_at).toLocaleString()}</td>
+                <td><b>${s.file_count}</b> files</td>
+                <td>${formatBytes(s.total_size_bytes)}</td>
+                <td><span class="badge ${badgeClass}">${s.integrity_status}</span></td>
+                <td>${readinessBadge}</td>
+                <td>${actionBtn}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          pointsTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--muted-foreground); padding: 15px;">No snapshot recovery points found. Create a snapshot first!</td></tr>`;
+        }
+
+        loadRecoveryAudit(data.past_recoveries || data.recovery_audit || []);
+      } catch (err) {
+        console.error('Recovery load error:', err);
+      }
+    }
+
+    function loadRecoveryAudit(historyData) {
+      const histTbody = document.getElementById('recoveryHistoryTableBody');
+      if (!histTbody) return;
+
+      if (historyData && historyData.length > 0) {
+        histTbody.innerHTML = historyData.map(h => {
+          let statusBadge = 'badge-low';
+          if (h.status === 'FAILED') statusBadge = 'badge-critical';
+          else if (h.status === 'ROLLED_BACK' || h.status === 'IN_PROGRESS') statusBadge = 'badge-medium';
+
+          const verResult = h.verification_result || (h.status === 'SUCCESS' ? 'VERIFIED_MATCH' : 'PENDING');
+          const verBadge = verResult === 'VERIFIED_MATCH' 
+            ? '<span class="badge badge-low">Verified</span>' 
+            : (verResult === 'HASH_MISMATCH' 
+                ? '<span class="badge badge-critical">Mismatch</span>' 
+                : `<span class="badge badge-info">${verResult}</span>`);
+
+          return `
+            <tr>
+              <td><code>${h.recovery_id}</code></td>
+              <td><code>${h.snapshot_id}</code></td>
+              <td style="font-size: 11px; font-family: monospace; color: var(--muted-foreground);">${h.safety_snapshot_id || 'None'}</td>
+              <td style="font-size: 12px; color: var(--muted-foreground);">${new Date(h.started_at).toLocaleString()}</td>
+              <td><span class="badge ${statusBadge}">${h.status}</span></td>
+              <td>${h.restored_files_count || 0} (${formatBytes(h.restored_bytes || 0)})</td>
+              <td>${verBadge}</td>
+              <td style="font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${h.details || ''}">${h.details || h.error_message || 'Restored'}</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        histTbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--muted-foreground); padding: 15px;">No past restorations logged in SQLite.</td></tr>`;
+      }
+    }
+
+    function openRecoveryModal(snapshotId, fileCount) {
+      selectedSnapshotForRestore = snapshotId;
+      const idEl = document.getElementById('modalSnapId');
+      if (idEl) idEl.textContent = snapshotId;
+      const countEl = document.getElementById('modalSnapFiles');
+      if (countEl) countEl.textContent = `${fileCount || '--'} files`;
+      const integEl = document.getElementById('modalSnapIntegrity');
+      if (integEl) integEl.innerHTML = `<span style="color: var(--success); font-weight: 600;">Valid (SHA-256 Verified)</span>`;
+      const modal = document.getElementById('recoveryModal');
+      if (modal) modal.style.display = 'grid';
+    }
+
+    // Alias for backward compatibility
+    function promptRecoveryModal(snapshotId, fileCount) {
+      openRecoveryModal(snapshotId, fileCount);
+    }
+
+    function closeRecoveryModal() {
+      const modal = document.getElementById('recoveryModal');
+      if (modal) modal.style.display = 'none';
+      selectedSnapshotForRestore = null;
+    }
+
+    async function handleConfirmRestoreClick() {
+      if (!selectedSnapshotForRestore) return;
+      const snapId = selectedSnapshotForRestore;
+      await restoreSnapshot(snapId);
+    }
+
+    async function restoreSnapshot(snapshotId) {
+      const btn = document.getElementById('modalConfirmRestoreBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Restoring & Verifying...';
+      }
+
+      showToast(`Initiating verified restoration from ${snapshotId}...`, 'info');
+
+      try {
+        const res = await fetch(`${API_BASE}/recovery/restore`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ snapshot_id: snapshotId, confirm: true })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(`🎉 Recovery Successful! ${data.restored_files_count} files restored safely (Safety checkpoint: ${data.safety_snapshot_id || 'saved'}).`, 'success');
+          closeRecoveryModal();
+          await loadRecovery();
+          await loadSnapshots();
+          await loadDashboard();
+          await loadStorage();
+          if (activeTab === 'threats') await loadThreats();
+          if (activeTab === 'reports') await loadReports();
+        } else {
+          showToast(`❌ Recovery failed: ${data.detail || 'Restoration interrupted'}`, 'danger');
+          await loadRecovery();
+        }
+      } catch (err) {
+        showToast(`Recovery error: ${err.message}`, 'danger');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Restore';
+        }
+      }
+    }
+
+    // 7. AI Analysis View
+    async function loadAIAnalysis() {
+      try {
+        const res = await fetch(`${API_BASE}/ai-analysis`);
+        const data = await res.json();
+
+        // 1. Risk Score Gauge & Badge
+        const score = data.current_risk_score ?? data.risk_score ?? 0;
+        const scoreEl = document.getElementById('aiRiskScoreNumber');
+        if (scoreEl) {
+          scoreEl.innerHTML = `${score} <span style="font-size: 16px; color: var(--muted-foreground); font-weight: 500;">/ 100</span>`;
+        }
+
+        const barEl = document.getElementById('aiRiskScoreBar');
+        if (barEl) {
+          barEl.style.width = `${Math.max(5, score)}%`;
+          if (score >= 80) barEl.style.background = 'var(--destructive)';
+          else if (score >= 60) barEl.style.background = 'var(--danger)';
+          else if (score >= 40) barEl.style.background = 'var(--warning)';
+          else barEl.style.background = 'var(--success)';
+        }
+
+        const badgeEl = document.getElementById('aiSeverityBadge');
+        if (badgeEl) {
+          badgeEl.textContent = `${data.severity || 'INFO'} SEVERITY`;
+          if (data.severity === 'CRITICAL') badgeEl.className = 'badge badge-critical';
+          else if (data.severity === 'HIGH') badgeEl.className = 'badge badge-high';
+          else if (data.severity === 'MEDIUM') badgeEl.className = 'badge badge-medium';
+          else badgeEl.className = 'badge badge-low';
+        }
+
+        // 2. Classification & Confidence
+        const classEl = document.getElementById('aiClassificationText');
+        if (classEl) classEl.textContent = data.classification || 'Nominal Storage Operation';
+
+        const confEl = document.getElementById('aiThreatProbText');
+        if (confEl) {
+          const confPct = Math.round((typeof data.confidence === 'number' ? data.confidence : 0) * 100);
+          const baseConf = data.baseline?.baseline_confidence || 'Standard';
+          confEl.textContent = `${confPct}% (${baseConf} Baseline)`;
+        }
+
+        const timeEl = document.getElementById('aiAnalysisTimeText');
+        if (timeEl) {
+          timeEl.textContent = data.timestamp ? `Updated: ${new Date(data.timestamp).toLocaleTimeString()}` : 'Real-Time';
+        }
+
+        // 3. Recommended Defensive Action
+        const actionEl = document.getElementById('aiRecommendedActionText');
+        if (actionEl) actionEl.textContent = data.recommended_action || 'Continue normal background monitoring.';
+
+        const actionBadgeEl = document.getElementById('aiActionBadge');
+        if (actionBadgeEl) {
+          if (score >= 60) {
+            actionBadgeEl.textContent = 'Mitigation Advised';
+            actionBadgeEl.className = 'badge badge-critical';
+          } else if (score >= 40) {
+            actionBadgeEl.textContent = 'Inspection Advised';
+            actionBadgeEl.className = 'badge badge-medium';
+          } else {
+            actionBadgeEl.textContent = 'Zero-Trust Nominal';
+            actionBadgeEl.className = 'badge badge-low';
+          }
+        }
+
+        // 4. Behavioral Feature Meters
+        if (data.features) {
+          const updateMeter = (valId, barId, val) => {
+            const num = typeof val === 'number' ? val : 0.05;
+            const vEl = document.getElementById(valId);
+            if (vEl) vEl.textContent = num.toFixed(2);
+            const bEl = document.getElementById(barId);
+            if (bEl) {
+              bEl.style.width = `${Math.min(100, Math.max(5, num * 100))}%`;
+              bEl.style.background = num >= 0.70 ? 'var(--danger)' : (num >= 0.40 ? 'var(--warning)' : 'var(--bright)');
+            }
+          };
+
+          updateMeter('featEntropyVal', 'featEntropyBar', data.features.entropy_score);
+          updateMeter('featFreqVal', 'featFreqBar', data.features.write_frequency_score);
+          updateMeter('featExtVal', 'featExtBar', data.features.extension_score);
+          updateMeter('featBurstVal', 'featBurstBar', data.features.burst_activity_score);
+          updateMeter('featProcVal', 'featProcBar', data.features.process_score);
+        }
+
+        // 5. Explainable Evidence
+        const evidenceContainer = document.getElementById('aiEvidenceContainer');
+        if (evidenceContainer && data.evidence && data.evidence.length > 0) {
+          evidenceContainer.innerHTML = data.evidence.map(item => `
+            <li class="glass-inset" style="padding: 10px 14px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+              <span style="color: ${score >= 60 ? 'var(--danger)' : 'var(--bright)'}; font-size: 14px;">${score >= 60 ? '⚠️' : '🛡️'}</span>
+              <span>${item}</span>
+            </li>
+          `).join('');
+        }
+
+        // 6. 4-Stage Explainable Pipeline
+        const pipeContainer = document.getElementById('aiPipelineContainer');
+        if (pipeContainer && data.pipeline_stages) {
+          pipeContainer.innerHTML = data.pipeline_stages.map(stage => `
+            <div class="glass-inset" style="padding: 14px; border-radius: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: var(--bright);">STAGE ${stage.stage}</span>
+                <span class="badge ${stage.status === 'warning' || stage.status === 'critical' ? 'badge-critical' : 'badge-low'}">${stage.status}</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">${stage.name}</div>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-bottom: 8px;">${stage.description}</div>
+              <div style="font-size: 12px; font-weight: 600; color: var(--foreground);">${stage.metrics_sample}</div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('AI analysis load error:', err);
+      }
+    }
+
+    // 8. Reports & Compliance View (Phase 10)
+    let reportsDebounceTimer = null;
+    function debouncedReportUpdate() {
+      if (activeTab === 'reports') {
+        if (reportsDebounceTimer) clearTimeout(reportsDebounceTimer);
+        reportsDebounceTimer = setTimeout(() => {
+          loadReports();
+        }, 1500);
+      }
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch(`${API_BASE}/reports`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+
+        // Report ID & Generation Time
+        const repIdElem = document.getElementById('reportIdLabel');
+        if (repIdElem) repIdElem.textContent = `Report ID: ${data.report_id}`;
+        const genTimeElem = document.getElementById('reportGeneratedTime');
+        if (genTimeElem) genTimeElem.textContent = `Generated: ${new Date(data.generated_at).toLocaleTimeString()}`;
+
+        // Executive Summary
+        const exec = data.executive_summary || {};
+        const statusBadge = document.getElementById('reportSecurityStatusBadge');
+        if (statusBadge) {
+          statusBadge.textContent = exec.security_status || 'PROTECTED';
+          statusBadge.className = 'badge';
+          if (exec.security_status === 'CRITICAL') statusBadge.classList.add('badge-critical');
+          else if (exec.security_status === 'HIGH RISK') statusBadge.classList.add('badge-high');
+          else if (exec.security_status === 'WARNING') statusBadge.classList.add('badge-medium');
+          else statusBadge.classList.add('badge-low');
+        }
+
+        const riskTierElem = document.getElementById('reportRiskLevelText');
+        if (riskTierElem) riskTierElem.textContent = exec.risk_level || 'LOW';
+
+        // Top Highlights
+        const evts = data.events || {};
+        const thr = data.threats || {};
+        const snaps = data.snapshots || {};
+        const rec = data.recovery || {};
+        const ai = data.ai_analysis || {};
+        const stor = data.storage || {};
+
+        document.getElementById('reportTotalEvents').textContent = evts.total ?? 0;
+        document.getElementById('reportActiveThreats').textContent = thr.active ?? 0;
+        document.getElementById('reportValidSnapshots').textContent = snaps.valid ?? 0;
+        document.getElementById('reportAiRiskScore').textContent = ai.risk_score ?? 0;
+
+        // Pillar 1: Events
+        const repEvtBadge = document.getElementById('repEvtBadgeTotal');
+        if (repEvtBadge) repEvtBadge.textContent = `${evts.total || 0} total`;
+        document.getElementById('repEvtCreated').textContent = evts.created ?? 0;
+        document.getElementById('repEvtModified').textContent = evts.modified ?? 0;
+        document.getElementById('repEvtRenamed').textContent = evts.renamed ?? 0;
+        document.getElementById('repEvtDeleted').textContent = evts.deleted ?? 0;
+        document.getElementById('repEvtSuspicious').textContent = evts.suspicious ?? 0;
+
+        // Pillar 2: Threats
+        const repThrBadge = document.getElementById('repThrBadgeTotal');
+        if (repThrBadge) repThrBadge.textContent = `${thr.total || 0} flagged`;
+        document.getElementById('reportTotalThreats').textContent = thr.total ?? 0;
+        document.getElementById('repThrActive').textContent = thr.active ?? 0;
+        document.getElementById('reportResolvedThreats').textContent = thr.resolved ?? 0;
+        document.getElementById('reportCriticalThreats').textContent = thr.critical ?? 0;
+        document.getElementById('reportHighThreats').textContent = thr.high ?? 0;
+
+        // Pillar 3: Snapshots
+        const repSnapStatus = document.getElementById('repSnapBadgeStatus');
+        if (repSnapStatus) {
+          if ((snaps.total || 0) === 0) {
+            repSnapStatus.textContent = 'No Snapshots';
+            repSnapStatus.className = 'badge badge-info';
+          } else if ((snaps.corrupted || 0) > 0) {
+            repSnapStatus.textContent = 'Corruption Detected';
+            repSnapStatus.className = 'badge badge-critical';
+          } else {
+            repSnapStatus.textContent = 'Integrity Valid';
+            repSnapStatus.className = 'badge badge-low';
+          }
+        }
+        document.getElementById('reportTotalSnapshots').textContent = snaps.valid ?? 0;
+        document.getElementById('reportCorruptedSnapshots').textContent = snaps.corrupted ?? 0;
+        document.getElementById('repSnapReady').textContent = snaps.recovery_ready ?? 0;
+        document.getElementById('repSnapVolume').textContent = formatBytes(snaps.total_volume_bytes || 0);
+
+        // Pillar 4: Recovery
+        const repRecBadge = document.getElementById('repRecBadgeCount');
+        if (repRecBadge) repRecBadge.textContent = `${rec.total || 0} ops`;
+        document.getElementById('reportTotalRecoveries').textContent = rec.total ?? 0;
+        document.getElementById('reportSuccessRecoveries').textContent = rec.successful ?? 0;
+        document.getElementById('reportFailedRecoveries').textContent = rec.failed ?? 0;
+        document.getElementById('reportRolledBackRecoveries').textContent = rec.rolled_back ?? 0;
+
+        // Pillar 5: AI Risk
+        document.getElementById('repAiScoreVal').textContent = ai.risk_score ?? 0;
+        const repAiSev = document.getElementById('reportAiSeverity');
+        if (repAiSev) {
+          repAiSev.textContent = ai.severity || 'INFO';
+          repAiSev.className = 'badge';
+          if (ai.severity === 'CRITICAL') repAiSev.classList.add('badge-critical');
+          else if (ai.severity === 'HIGH') repAiSev.classList.add('badge-high');
+          else if (ai.severity === 'MEDIUM') repAiSev.classList.add('badge-medium');
+          else if (ai.severity === 'LOW') repAiSev.classList.add('badge-low');
+          else repAiSev.classList.add('badge-info');
+        }
+        document.getElementById('reportBaselineConfidence').textContent = ai.baseline_confidence || 'High';
+        let conf = ai.confidence ?? 0;
+        if (conf > 0 && conf <= 1) conf = Math.round(conf * 100);
+        document.getElementById('repAiConfidenceVal').textContent = `${conf}%`;
+        document.getElementById('repAiClassification').textContent = ai.classification || 'Normal';
+
+        // Pillar 6: Storage
+        document.getElementById('reportProtectedFiles').textContent = stor.protected_files ?? 0;
+        document.getElementById('reportStorageUsage').textContent = formatBytes(stor.used_bytes || 0);
+        document.getElementById('repStoreMonBytes').textContent = formatBytes(stor.monitored_storage_bytes || 0);
+        document.getElementById('repStoreCapacity').textContent = formatBytes(stor.total_bytes || 0);
+        const repStorePct = document.getElementById('repStorePercentBadge');
+        if (repStorePct) repStorePct.textContent = `${stor.usage_percent || 0}% used`;
+
+        // Latest Activity Stream
+        const latest = data.latest_activity || {};
+        const latEvtElem = document.getElementById('reportLatestEvent');
+        if (latEvtElem) {
+          if (latest.latest_event) {
+            latEvtElem.textContent = `${new Date(latest.latest_event.timestamp).toLocaleTimeString()} · ${latest.latest_event.event_type.toUpperCase()} · ${latest.latest_event.file_name}`;
+          } else {
+            latEvtElem.textContent = 'None recorded';
+          }
+        }
+
+        const latThrElem = document.getElementById('reportLatestThreat');
+        if (latThrElem) {
+          if (latest.latest_threat) {
+            latThrElem.textContent = `${new Date(latest.latest_threat.timestamp).toLocaleTimeString()} · ${latest.latest_threat.threat_id} (${latest.latest_threat.severity}${latest.latest_threat.status === 'Resolved' ? ' - Resolved' : ''})`;
+          } else {
+            latThrElem.textContent = 'No threats detected';
+          }
+        }
+
+        const latRecElem = document.getElementById('reportLatestRecovery');
+        if (latRecElem) {
+          if (latest.latest_recovery) {
+            latRecElem.textContent = `${new Date(latest.latest_recovery.started_at).toLocaleTimeString()} · ${latest.latest_recovery.status} (${latest.latest_recovery.restored_files_count || 0} files)`;
+          } else {
+            latRecElem.textContent = 'No past recoveries';
+          }
+        }
+
+        // Recommendations List
+        const recList = document.getElementById('reportRecommendationsList');
+        if (recList && data.recommendations) {
+          recList.innerHTML = data.recommendations.map(r => `<li>${r}</li>`).join('');
+        }
+
+        // Compliance Evidence Table & Badge
+        const compBody = document.getElementById('complianceEvidenceTableBody');
+        if (compBody && data.compliance_evidence) {
+          compBody.innerHTML = data.compliance_evidence.map(c => `
+            <tr>
+              <td><code>${c.control_id}</code></td>
+              <td><b>${c.control_name}</b><br><span style="font-size: 11px; color: var(--muted-foreground);">${c.details}</span></td>
+              <td>${c.telemetry_metric}</td>
+              <td><span class="badge ${c.status === 'Evidence Available' ? 'badge-low' : 'badge-medium'}">${c.status}</span></td>
+            </tr>
+          `).join('');
+
+          const compBadge = document.getElementById('complianceSummaryBadge');
+          if (compBadge) {
+            const availCount = data.compliance_evidence.filter(c => c.status === 'Evidence Available').length;
+            compBadge.textContent = `${availCount}/${data.compliance_evidence.length} Controls Available`;
+            compBadge.className = availCount === data.compliance_evidence.length ? 'badge badge-low' : 'badge badge-info';
+          }
+        }
+
+        // Load audit logs table
+        loadReportsAudit();
+
+      } catch (err) {
+        console.error('Reports load error:', err);
+        const repIdElem = document.getElementById('reportIdLabel');
+        if (repIdElem) repIdElem.textContent = 'Report: Offline';
+        const genTimeElem = document.getElementById('reportGeneratedTime');
+        if (genTimeElem) genTimeElem.textContent = 'Unavailable';
+        const statusBadge = document.getElementById('reportSecurityStatusBadge');
+        if (statusBadge) {
+          statusBadge.textContent = 'UNAVAILABLE';
+          statusBadge.className = 'badge badge-critical';
+        }
+      }
+    }
+
+    // Load Persistent Audit Logs
+    async function loadReportsAudit() {
+      try {
+        const filterSev = document.getElementById('auditSeverityFilter') ? document.getElementById('auditSeverityFilter').value : '';
+        const url = `${API_BASE}/reports/audit?limit=25${filterSev ? '&severity=' + encodeURIComponent(filterSev) : ''}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        const tbody = document.getElementById('auditLogsTableBody');
+        if (!tbody) return;
+
+        const logs = data.logs || data.audit_records || [];
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted-foreground);">No audit entries found for selected filter.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = logs.map(l => {
+          let badge = 'badge-info';
+          if (l.severity === 'CRITICAL') badge = 'badge-critical';
+          else if (l.severity === 'HIGH') badge = 'badge-high';
+          else if (l.severity === 'WARNING') badge = 'badge-medium';
+          else if (l.severity === 'LOW') badge = 'badge-low';
+
+          return `
+            <tr>
+              <td style="color: var(--muted-foreground); font-size: 11px;">${new Date(l.timestamp).toLocaleTimeString()}</td>
+              <td><code>${l.audit_id}</code></td>
+              <td><b>${l.event_type}</b></td>
+              <td><span class="badge ${badge}">${l.severity}</span></td>
+              <td style="color: var(--muted-foreground); font-size: 12px;">${l.source}</td>
+              <td>${l.action}</td>
+              <td><strong style="color: ${l.result === 'SUCCESS' || l.result === 'VALID' || l.result === 'INITIALIZED' ? 'var(--success)' : (l.result === 'FAILED' || l.result === 'CORRUPTED' ? 'var(--danger)' : 'var(--foreground)')};">${l.result}</strong></td>
+              <td style="max-width: 240px; font-size: 12px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${l.details || ''}">${l.details || '--'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Audit logs load error:', err);
+        const tbody = document.getElementById('auditLogsTableBody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--danger);">Failed to load audit records: ${err.message}</td></tr>`;
+        }
+      }
+    }
+
+    async function exportAuditReport() {
+      showToast('Generating and downloading real-time JSON security audit report...', 'info');
+      try {
+        const res = await fetch(`${API_BASE}/reports/export`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        const nowStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+        a.download = `RansomGuard_Audit_Report_${nowStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showToast('✅ Security Audit Report successfully downloaded.', 'success');
+      } catch (err) {
+        showToast(`Failed to export audit report: ${err.message}`, 'danger');
+      }
+    }
+
+    async function runPhase10Verification() {
+      showToast('Executing automated Phase 10 verification suite (Tests A-J)...', 'info');
+      try {
+        const res = await fetch(`${API_BASE}/reports/run-phase10-tests`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        if (data.all_tests_passed) {
+          showToast(`✅ Phase 10 Verified: All ${data.tests_executed} tests passed with 100% data consistency!`, 'success');
+        } else {
+          showToast(`⚠️ Verification notice: ${data.error || 'Check console'}`, 'danger');
+        }
+        loadReports();
+      } catch (err) {
+        showToast('Verification request failed: ' + err.message, 'danger');
+      }
+    }
+
+    // Safe Attack Simulation Controllers (Phase 11)
+    let currentSelectedIntensity = 'MEDIUM';
+    let activeSimulationId = null;
+
+    function openSimulationModal() {
+      const modal = document.getElementById('simulationModal');
+      if (modal) modal.style.display = 'grid';
+    }
+
+    function closeSimulationModal() {
+      const modal = document.getElementById('simulationModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function selectSimIntensity(intensity) {
+      currentSelectedIntensity = intensity.toUpperCase();
+      const intensityDisplay = document.getElementById('simIntensityDisplay');
+      if (intensityDisplay) intensityDisplay.textContent = currentSelectedIntensity;
+
+      ['LOW', 'MEDIUM', 'HIGH'].forEach(mode => {
+        const card = document.getElementById(`simCard${mode.charAt(0) + mode.slice(1).toLowerCase()}`);
+        if (card) {
+          if (mode === currentSelectedIntensity) {
+            card.style.borderColor = 'var(--bright)';
+            card.style.background = 'rgba(59, 130, 246, 0.08)';
+          } else {
+            card.style.borderColor = 'transparent';
+            card.style.background = '';
+          }
+        }
+      });
+    }
+
+    function updateSimulationProgress(statusMsg) {
+      const container = document.getElementById('simProgressContainer');
+      const bar = document.getElementById('simProgressBar');
+      const pct = document.getElementById('simProgressPct');
+      const stageText = document.getElementById('simStageText');
+      const idDisplay = document.getElementById('simIdDisplay');
+      const statusDisplay = document.getElementById('simDetectionStatusDisplay');
+
+      if (container) container.style.display = 'block';
+      if (bar) bar.style.width = `${statusMsg.progress || 0}%`;
+      if (pct) pct.textContent = `${statusMsg.progress || 0}%`;
+      if (stageText) stageText.textContent = `Stage: ${statusMsg.stage || 'PROCESSING'}`;
+      if (idDisplay && statusMsg.simulation_id) idDisplay.textContent = statusMsg.simulation_id;
+
+      if (statusMsg.stage === 'STARTED') {
+        if (statusDisplay) statusDisplay.innerHTML = '<span class="badge badge-info">Started</span>';
+      } else if (statusMsg.stage === 'GENERATING_EVENTS') {
+        if (statusDisplay) statusDisplay.innerHTML = '<span class="badge badge-medium">Generating Telemetry...</span>';
+      } else if (statusMsg.stage === 'DETECTION_ANALYSIS') {
+        if (statusDisplay) statusDisplay.innerHTML = '<span class="badge badge-high">Analyzing Telemetry...</span>';
+      } else if (statusMsg.stage === 'COMPLETED') {
+        if (statusDisplay) statusDisplay.innerHTML = '<span class="badge badge-low">Completed</span>';
+        setTimeout(() => {
+          loadDashboard();
+          loadEventsTable();
+          loadThreats();
+          if (activeTab === 'reports') loadReports();
+        }, 300);
+      }
+    }
+
+    async function runSelectedSimulation() {
+      const runBtn = document.getElementById('simRunBtn');
+      const cleanBtn = document.getElementById('simCleanBtn');
+      if (runBtn) {
+        runBtn.disabled = true;
+        runBtn.textContent = 'Simulating...';
+      }
+      if (cleanBtn) cleanBtn.disabled = true;
+
+      const progressContainer = document.getElementById('simProgressContainer');
+      if (progressContainer) progressContainer.style.display = 'block';
+      const bar = document.getElementById('simProgressBar');
+      if (bar) bar.style.width = '10%';
+      const pct = document.getElementById('simProgressPct');
+      if (pct) pct.textContent = '10%';
+      const stageText = document.getElementById('simStageText');
+      if (stageText) stageText.textContent = 'Stage: STARTED';
+      const statusDisplay = document.getElementById('simDetectionStatusDisplay');
+      if (statusDisplay) statusDisplay.innerHTML = '<span class="badge badge-info">Executing...</span>';
+
+      showToast(`Executing safe ${currentSelectedIntensity} simulation inside protected_storage/demo/...`, 'info');
+
+      try {
+        const res = await fetch(`${API_BASE}/demo/simulate?intensity=${currentSelectedIntensity.toLowerCase()}`, { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+          activeSimulationId = data.simulation_id;
+          const idEl = document.getElementById('simIdDisplay');
+          if (idEl) idEl.textContent = data.simulation_id;
+          const filesEl = document.getElementById('simFilesDisplay');
+          if (filesEl) filesEl.textContent = `${data.files_created} files (${data.files_modified} mod, ${data.files_renamed} ren)`;
+          const eventsEl = document.getElementById('simEventsDisplay');
+          if (eventsEl) eventsEl.textContent = `${data.events_generated} events`;
+
+          let riskBadge = 'badge-low';
+          if (data.expected_risk_level === 'CRITICAL') riskBadge = 'badge-critical';
+          else if (data.expected_risk_level === 'HIGH') riskBadge = 'badge-high';
+          else if (data.expected_risk_level === 'MEDIUM') riskBadge = 'badge-medium';
+          const riskEl = document.getElementById('simRiskDisplay');
+          if (riskEl) riskEl.innerHTML = `<span class="badge ${riskBadge}">${data.expected_risk_level}</span>`;
+
+          if (statusDisplay) statusDisplay.innerHTML = `<span class="badge badge-low">Completed (Observed)</span>`;
+
+          showToast(`⚡ Simulation [${data.simulation_id}] completed: ${data.events_generated} events generated across ${data.files_created} files. Expected risk: ${data.expected_risk_level}.`, 'warning');
+
+          loadDashboard();
+          loadEventsTable();
+          loadThreats();
+          if (activeTab === 'reports') loadReports();
+        } else {
+          showToast(`Simulation error: ${data.message || 'Operation failed'}`, 'danger');
+          if (statusDisplay) statusDisplay.innerHTML = `<span class="badge badge-critical">Failed</span>`;
+        }
+      } catch (err) {
+        showToast('Simulation request error: ' + err.message, 'danger');
+        if (statusDisplay) statusDisplay.innerHTML = `<span class="badge badge-critical">Network Error</span>`;
+      } finally {
+        if (runBtn) {
+          runBtn.disabled = false;
+          runBtn.textContent = '▶ Start Safe Simulation';
+        }
+        if (cleanBtn) cleanBtn.disabled = false;
+      }
+    }
+
+    async function cleanupSimulationSandbox() {
+      const cleanBtn = document.getElementById('simCleanBtn');
+      if (cleanBtn) {
+        cleanBtn.disabled = true;
+        cleanBtn.textContent = 'Cleaning...';
+      }
+
+      showToast('Purging temporary simulation artifacts strictly from demo sandbox...', 'info');
+
+      try {
+        const res = await fetch(`${API_BASE}/demo/cleanup`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🧹 Demo sandbox cleared: ${data.removed_count} temporary test artifacts removed.`, 'success');
+          const filesEl = document.getElementById('simFilesDisplay');
+          if (filesEl) filesEl.textContent = '0 files';
+          const eventsEl = document.getElementById('simEventsDisplay');
+          if (eventsEl) eventsEl.textContent = 'Cleaned';
+          const statusEl = document.getElementById('simDetectionStatusDisplay');
+          if (statusEl) statusEl.innerHTML = '<span class="badge badge-low">Sandbox Clean</span>';
+          loadDashboard();
+          loadEventsTable();
+          if (activeTab === 'storage') loadStorage();
+          if (activeTab === 'reports') loadReports();
+        } else {
+          showToast(`Cleanup error: ${data.message || 'Operation failed'}`, 'danger');
+        }
+      } catch (err) {
+        showToast('Cleanup request error: ' + err.message, 'danger');
+      } finally {
+        if (cleanBtn) {
+          cleanBtn.disabled = false;
+          cleanBtn.textContent = '🧹 Clean Sandbox';
+        }
+      }
+    }
+
+    // Connect existing button & legacy trigger
+    function triggerSimulation() {
+      openSimulationModal();
+    }
+
+    document.getElementById('quickSimBtn').addEventListener('click', openSimulationModal);
+
+    // Settings
+    async function saveSettings() {
+      const storageInput = document.getElementById('settingsStorageInput');
+      const newPath = storageInput ? storageInput.value.trim() : '';
+      if (newPath) {
+        try {
+          const res = await fetch(`${API_BASE}/storage/configure`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ directory_path: newPath })
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            const pathEl = document.getElementById('storageDirPath');
+            if (pathEl) pathEl.textContent = result.new_directory || newPath;
+            showToast('Configuration and protected storage path updated.', 'success');
+            loadStorage();
+            if (activeTab === 'dashboard') loadDashboard();
+            return;
+          }
+        } catch (_) {}
+      }
+      showToast('Configuration preferences updated in SQLite runtime.', 'success');
+    }
+
+    // Helper: Format Bytes
+    function formatBytes(bytes, decimals = 1) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // WebSocket Real-time Monitor Connection
+    function connectWebSocket() {
+      try {
+        socket = new WebSocket(WS_URL);
+
+        socket.onopen = () => {
+          document.getElementById('wsStatusDot').style.background = 'var(--success)';
+          document.getElementById('wsStatusLabel').textContent = 'Live Connected';
+          document.getElementById('wsStatusPill').style.borderColor = 'rgba(16, 185, 129, 0.5)';
+        };
+
+        socket.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+
+            const updateMetricsDisplay = (metrics) => {
+              if (!metrics) return;
+              const ops = document.getElementById('liveOpsSec');
+              if (ops) ops.textContent = (metrics.operations_per_second || 0).toFixed(1);
+              const c = document.getElementById('liveCreatedCount');
+              if (c) c.textContent = metrics.files_created;
+              const m = document.getElementById('liveModifiedCount');
+              if (m) m.textContent = metrics.files_modified;
+              const r = document.getElementById('liveRenamedCount');
+              if (r) r.textContent = metrics.files_renamed;
+              const d = document.getElementById('liveDeletedCount');
+              if (d) d.textContent = metrics.files_deleted;
+              const s = document.getElementById('liveSuspiciousCount');
+              if (s) s.textContent = metrics.suspicious_operations;
+              const f = document.getElementById('statFilesMonitored');
+              if (f) f.textContent = Number(metrics.monitored_files_count).toLocaleString();
+              const countEl = document.getElementById('storageFilesCountText');
+              if (countEl && typeof metrics.monitored_files_count !== 'undefined') {
+                countEl.textContent = metrics.monitored_files_count;
+              }
+              const bytesEl = document.getElementById('storageMonitoredBytesText');
+              if (bytesEl && typeof metrics.monitored_storage_bytes !== 'undefined') {
+                bytesEl.textContent = formatBytes(metrics.monitored_storage_bytes);
+              }
+              renderActivityChart(metrics);
+            };
+
+            if (msg.type === 'CONNECTION_ESTABLISHED' && msg.metrics) {
+              updateMetricsDisplay(msg.metrics);
+            } else if (msg.type === 'MONITORING_STATUS') {
+              if (typeof msg.is_monitoring === 'boolean') {
+                isMonitoring = msg.is_monitoring;
+                const toggleBtn = document.getElementById('toggleMonitorBtn');
+                if (toggleBtn) {
+                  toggleBtn.textContent = isMonitoring ? 'Pause Monitor' : 'Resume Monitor';
+                }
+                const monEl = document.getElementById('storageMonitoringBadge');
+                if (monEl) {
+                  monEl.textContent = isMonitoring ? 'Watchdog Active' : 'Watchdog Paused';
+                  monEl.className = isMonitoring ? 'badge badge-low' : 'badge badge-medium';
+                }
+              }
+              if (msg.metrics) updateMetricsDisplay(msg.metrics);
+              debouncedReportUpdate();
+            } else if (msg.type === 'FILE_EVENT') {
+              const fileEvt = msg.data;
+              const metrics = msg.metrics;
+
+              if (metrics) updateMetricsDisplay(metrics);
+              debouncedReportUpdate();
+
+              // Flash high risk alerts & synchronize UI state
+              if (fileEvt.risk_score >= 60) {
+                const entropyText = fileEvt.entropy ? ` · Entropy: ${fileEvt.entropy.toFixed(2)}/8.00` : '';
+                showToast(`🚨 Ransomware Alert: ${fileEvt.file_name} flagged (${fileEvt.severity} · Risk: ${fileEvt.risk_score}/100${entropyText})`, 'danger');
+                loadDashboard();
+                if (activeTab === 'threats') {
+                  loadThreats();
+                }
+              }
+
+              // Update Storage Tab file inventory in real time if open
+              if (activeTab === 'storage') {
+                loadStorage();
+              }
+
+              // Prepend to Live Monitor table if open
+              if (activeTab === 'live-monitor') {
+                const tbody = document.getElementById('liveEventsTableBody');
+                if (tbody) {
+                  if (tbody.innerHTML.includes('Loading') || tbody.innerHTML.includes('No events recorded')) {
+                    tbody.innerHTML = '';
+                  }
+                  const tr = document.createElement('tr');
+                  let badge = 'badge-info';
+                  if (fileEvt.severity === 'CRITICAL') badge = 'badge-critical';
+                  if (fileEvt.severity === 'HIGH') badge = 'badge-high';
+                  if (fileEvt.severity === 'MEDIUM') badge = 'badge-medium';
+                  if (fileEvt.severity === 'LOW') badge = 'badge-low';
+
+                  tr.innerHTML = `
+                    <td style="color: var(--muted-foreground); font-size: 12px;">${new Date(fileEvt.timestamp).toLocaleTimeString()}</td>
+                    <td><b>${fileEvt.event_type}</b></td>
+                    <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${fileEvt.file_name}</td>
+                    <td>${formatBytes(fileEvt.file_size)}</td>
+                    <td><span style="font-family: monospace; font-weight: 600;">${fileEvt.entropy ? fileEvt.entropy.toFixed(2) : '0.00'}</span></td>
+                    <td style="color: var(--muted-foreground);">${fileEvt.process_name || 'system'}</td>
+                    <td><strong>${fileEvt.risk_score}</strong>/100</td>
+                    <td><span class="badge ${badge}">${fileEvt.severity}</span></td>
+                    <td style="max-width: 260px; font-size: 12px; color: var(--foreground);">${fileEvt.reasons && fileEvt.reasons[0] ? fileEvt.reasons[0] : 'Normal operation'}</td>
+                  `;
+                  tr.style.background = fileEvt.risk_score >= 60 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(18, 104, 213, 0.06)';
+                  tbody.insertBefore(tr, tbody.firstChild);
+
+                  // Keep table size reasonable
+                  if (tbody.children.length > 50) {
+                    tbody.removeChild(tbody.lastChild);
+                  }
+                }
+              }
+              } else if (msg.type === 'RECOVERY_STATUS') {
+                debouncedReportUpdate();
+                if (msg.status === 'SUCCESS') {
+                  showToast(`🔄 Instant Rollback Complete: Restored ${msg.file_count} files from ${msg.snapshot_id} (Safety checkpoint created).`, 'success');
+                  loadRecovery();
+                  loadDashboard();
+                  loadStorage();
+                  loadSnapshots();
+                  if (activeTab === 'threats') loadThreats();
+                  if (activeTab === 'reports') loadReports();
+                } else if (msg.status === 'FAILED') {
+                  showToast(`⚠️ Recovery Alert: Restoration failed for ${msg.snapshot_id}: ${msg.error || 'Check audit logs'}`, 'danger');
+                  loadRecovery();
+                  if (activeTab === 'reports') loadReports();
+                }
+              } else if (msg.type === 'SIMULATION_STATUS') {
+                updateSimulationProgress(msg);
+              } else if (msg.type === 'DEMO_RESET') {
+                if (msg.demo_session_id) {
+                  const sBadge = document.getElementById('headerSessionId');
+                  if (sBadge) sBadge.textContent = msg.demo_session_id;
+                  const setBadge = document.getElementById('settingsSessionBadge');
+                  if (setBadge) setBadge.textContent = `Session: ${msg.demo_session_id}`;
+                }
+                activityHistory = [
+                  { time: '-4m', c: 0, m: 0, d: 0, r: 0 },
+                  { time: '-3m', c: 0, m: 0, d: 0, r: 0 },
+                  { time: '-2m', c: 0, m: 0, d: 0, r: 0 },
+                  { time: '-1m', c: 0, m: 0, d: 0, r: 0 },
+                  { time: 'Now', c: 0, m: 0, d: 0, r: 0 }
+                ];
+                renderActivityChart({ files_created: 0, files_modified: 0, files_deleted: 0, files_renamed: 0 });
+                loadDashboard();
+                loadEventsTable();
+                loadThreats();
+                loadStorage();
+                loadSnapshots();
+                loadRecovery();
+                loadAIAnalysis();
+                loadReports();
+                showToast('✨ Fresh presentation session active: ' + (msg.demo_session_id || ''), 'info');
+              }
+          } catch (e) {
+            console.error('Error handling WebSocket message:', e);
+          }
+        };
+
+        socket.onclose = () => {
+          document.getElementById('wsStatusDot').style.background = 'var(--warning)';
+          document.getElementById('wsStatusLabel').textContent = 'Reconnecting...';
+          setTimeout(connectWebSocket, 3000);
+        };
+
+        socket.onerror = () => {
+          document.getElementById('wsStatusDot').style.background = 'var(--danger)';
+          document.getElementById('wsStatusLabel').textContent = 'Disconnected';
+        };
+      } catch (err) {
+        console.warn('WebSocket connection attempt failed:', err);
+        setTimeout(connectWebSocket, 4000);
+      }
+    }
+
+    // Toggle Monitor Button
+    document.getElementById('toggleMonitorBtn').addEventListener('click', async () => {
+      const endpoint = isMonitoring ? '/monitor/stop' : '/monitor/start';
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, { method: 'POST' });
+        const data = await res.json();
+        isMonitoring = !isMonitoring;
+        document.getElementById('toggleMonitorBtn').textContent = isMonitoring ? 'Pause Monitor' : 'Resume Monitor';
+        showToast(data.message, 'info');
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    });
+
+    // Initial Load & periodic refresh poll
+    window.addEventListener('DOMContentLoaded', () => {
+      const cleanPath = window.location.pathname.replace(/^\//, '').toLowerCase();
+      const validTabs = ['dashboard', 'live-monitor', 'monitor', 'threats', 'storage', 'backups', 'recovery', 'ai-analysis', 'reports', 'settings'];
+      let initialTab = 'dashboard';
+      if (validTabs.includes(cleanPath)) {
+        initialTab = cleanPath === 'monitor' ? 'live-monitor' : cleanPath;
+      }
+      switchTab(initialTab);
+      connectWebSocket();
+      setInterval(() => {
+        if (activeTab === 'dashboard') loadDashboard();
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "snapshot_id": "snap_20261009_065433_0c2853",
+  "created_at": "2026-10-09T06:54:33.497185+00:00",
+  "file_count": 4,
+  "total_size_bytes": 351,
+  "integrity_hash": "c014dd4a548ff8151af137ad811e566d3421e3675de3536a2be2933f6a30ed02",
+  "files": [
+    {
+      "relative_path": "corporate_strategy_2026.docx",
+      "file_size": 85,
+      "sha256_hash": "db566b023d07af09c3576a9a6963e60a2fe04219e893acb2c2c26f9318f131a1",
+      "modified_at": "2026-10-08T05:39:10.436515+00:00"
+    },
+    {
+      "relative_path": "customer_database_export.csv",
+      "file_size": 102,
+      "sha256_hash": "83d7ba57c9f1c00918f9080e43d4aea36c33879a48a2b281cfc4f6823b856402",
+      "modified_at": "2026-10-08T05:39:10.438516+00:00"
+    },
+    {
+      "relative_path": "quarterly_financial_report.xlsx",
+      "file_size": 77,
+      "sha256_hash": "94c7b1d201b3254a5e2eba27891f1582eb866e328607be1eee386f4c8680aceb",
+      "modified_at": "2026-10-08T05:39:10.434511+00:00"
+    },
+    {
+      "relative_path": "system_architecture_notes.txt",
+      "file_size": 87,
+      "sha256_hash": "08bdb9adf024cc687602ac39e15469437bde9b6be6fc4112e322c0d440e0db19",
+      "modified_at": "2026-10-08T05:39:10.439521+00:00"
+    }
+  ]
+}

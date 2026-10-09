@@ -1,0 +1,1 @@
+RansomGuard AI defensive architecture with zero-trust snapshot recovery verification.
